@@ -1,215 +1,210 @@
-// This command waits for the entire HTML page to be loaded and ready before running our script.
-// This is the main container for all our code.
-document.addEventListener('DOMContentLoaded', () => {
+// This is the main function that runs only after the entire page is loaded.
+function onPageLoaded() {
 
-    // --- 1. GETTING OUR HTML ELEMENTS ---
-    // All variables defined here are visible to all other code inside this block.
-    const prevBtn = document.getElementById('prev-btn');
-    const nextBtn = document.getElementById('next-btn');
-    const calculateBtn = document.getElementById('calculate-btn');
-    const septicForm = document.getElementById('septic-calculator-form');
-    
+    // --- 1. ELEMENT REFERENCES ---
+    // We get every element we need once at the start.
+    const form = document.getElementById('septic-calculator-form');
+    if (!form) {
+        console.error("FATAL ERROR: The main form with id 'septic-calculator-form' was not found. The script cannot continue.");
+        return;
+    }
     const formSteps = document.querySelectorAll('.form-step');
-    const stepIndicators = document.querySelectorAll('.step-indicator .step');
-    
-    const resultsOutput = document.getElementById('results-output');
-    const pdfDownloadArea = document.getElementById('pdf-download-area');
+    const calcTypeSelect = document.getElementById('calculation-type');
     const systemTypeSelect = document.getElementById('system-type');
+    const stateSelect = document.getElementById('state');
+    const resultsOutput = document.getElementById('results-output');
+    const sidebarPlaceholder = document.querySelector('.sidebar-placeholder');
+    const pdfDownloadArea = document.getElementById('pdf-download-area');
 
-    // --- 2. SETTING UP OUR STATE ---
-    let currentStep = 0; // We start at step 0.
-    let latestQuoteData = null; // To store data for the PDF.
+    // Navigation Buttons by their unique ID
+    const nextBtn1 = document.getElementById('next-btn-1');
+    const prevBtn2 = document.getElementById('prev-btn-2');
+    const nextBtn2 = document.getElementById('next-btn-2');
+    const prevBtn3 = document.getElementById('prev-btn-3');
+    const nextBtn3 = document.getElementById('next-btn-3');
+    const prevBtn4 = document.getElementById('prev-btn-4');
 
-    // --- 3. CREATE CALCULATOR INSTANCE ---
+    // --- 2. STATE MANAGEMENT ---
     const calculator = new SepticCalculator();
+    let latestQuoteData = null;
 
-    // --- 4. CORE FUNCTIONS ---
+    // --- 3. CORE FUNCTIONS ---
 
-    // This function updates which form step is visible.
-    function updateFormSteps() {
-        formSteps.forEach(step => {
-            step.classList.remove('active', 'slide-in-from-right');
-        });
-        formSteps[currentStep].classList.add('active', 'slide-in-from-right');
-        
-        updateStepIndicators();
-        updateNavigationButtons();
-    }
-
-    // This function updates the step indicators at the top.
-    function updateStepIndicators() {
-        stepIndicators.forEach((indicator, index) => {
-            if (index === currentStep) {
-                indicator.classList.add('active');
-            } else {
-                indicator.classList.remove('active');
-            }
-        });
-    }
-
-    // This function shows/hides the correct navigation buttons.
-    function updateNavigationButtons() {
-        prevBtn.style.display = currentStep > 0 ? 'inline-block' : 'none';
-        nextBtn.style.display = currentStep < formSteps.length - 1 ? 'inline-block' : 'none';
-        calculateBtn.style.display = currentStep === formSteps.length - 1 ? 'inline-block' : 'none';
-    }
-    
-    // This function populates the "System Type" dropdown from loaded data.
-    function populateSystemTypes() {
-        if (!calculator.systemData) {
-            console.error("Cannot populate systems: data not loaded.");
-            return;
+    // Navigates to a specific step number
+    const navigateToStep = (stepNumber) => {
+        formSteps.forEach(step => step.classList.remove('active'));
+        const targetStep = document.querySelector(`.form-step[data-step="${stepNumber}"]`);
+        if (targetStep) {
+            targetStep.classList.add('active');
         }
-        const systems = calculator.systemData.installation;
-        systemTypeSelect.innerHTML = ''; 
+    };
 
-        const defaultOption = document.createElement('option');
-        defaultOption.value = "";
-        defaultOption.textContent = "Select a system type...";
-        defaultOption.disabled = true;
-        defaultOption.selected = true;
-        systemTypeSelect.appendChild(defaultOption);
-
-        for (const key in systems) {
+    // Updates the "System Type" dropdown based on the work type
+    const updateSystemTypeOptions = () => {
+        if (!calculator.systemData) return;
+        const selectedType = calcTypeSelect.value;
+        const options = calculator.systemData[selectedType];
+        systemTypeSelect.innerHTML = '';
+        if (!options) return;
+        for (const key in options) {
             const option = document.createElement('option');
             option.value = key;
-            option.textContent = systems[key].name;
+            option.textContent = options[key].name;
             systemTypeSelect.appendChild(option);
         }
-    }
-    
-    // This function handles displaying the final results.
-    function displayResults(result) {
-        let html = '';
-        if (result.error) {
-            html = `<div class="error-message">
-                        <h3>Incompatible Selection</h3>
-                        <p>${result.message}</p>
-                    </div>`;
-            pdfDownloadArea.style.display = 'none';
-        } else {
-            latestQuoteData = result.quoteDetails; // Save the details for the PDF
-            html = `<div class="results-summary">
-                        <h3>Estimate for a ${result.quoteDetails.system.name}</h3>
-                        <div class="cost-range">
-                            <h2>$${result.minEstimate.toLocaleString()} - $${result.maxEstimate.toLocaleString()}</h2>
-                        </div>
-                        <p class="disclaimer">${result.message}</p>
-                    </div>`;
-            pdfDownloadArea.style.display = 'block';
-        }
-        resultsOutput.innerHTML = html;
-    }
+    };
 
-    // --- 5. EVENT LISTENERS ---
+    // Fills the State dropdown from our data
+    const populateStateOptions = () => {
+        if (!calculator.regionalData) return;
+        const states = Object.keys(calculator.regionalData).filter(k => k !== 'default').sort((a, b) => calculator.regionalData[a].name.localeCompare(calculator.regionalData[b].name));
+        states.forEach(stateKey => {
+            const option = document.createElement('option');
+            option.value = stateKey;
+            option.textContent = calculator.regionalData[stateKey].name;
+            stateSelect.appendChild(option);
+        });
+    };
 
-    nextBtn.addEventListener('click', () => {
-        if (currentStep < formSteps.length - 1) {
-            currentStep++;
-            updateFormSteps();
-        }
-    });
-
-    prevBtn.addEventListener('click', () => {
-        if (currentStep > 0) {
-            currentStep--;
-            updateFormSteps();
-        }
-    });
-
-    septicForm.addEventListener('submit', (event) => {
-        event.preventDefault(); // Stop page reload
-
-        resultsOutput.innerHTML = `<div class="loading-spinner active"></div>`;
+    // Displays the final results in the sidebar
+    const displayResults = (result) => {
+        sidebarPlaceholder.style.display = 'none';
         pdfDownloadArea.style.display = 'none';
-
-        const formData = new FormData(septicForm);
-        const userInputs = Object.fromEntries(formData.entries());
-
-        setTimeout(() => {
-            const result = calculator.calculateInstallationCost(userInputs);
-            displayResults(result);
-        }, 500);
-    });
-    
-    pdfDownloadArea.addEventListener('click', () => {
-        if (!latestQuoteData) {
-            alert("Please calculate an estimate first.");
+        if (result.error) {
+            resultsOutput.innerHTML = `<div class="error-message">${result.message}</div>`;
+            latestQuoteData = null;
             return;
         }
-        
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        const { userInput, system, adjustments, permitFee } = latestQuoteData;
+        latestQuoteData = result;
+        const { minEstimate, maxEstimate, type, systemName, breakdown, description } = result;
+        let breakdownHtml = '';
+        if (type === 'installation' && breakdown) {
+            const labels = { design_and_permits: "Design & Permits", tank: "Tank & Materials", drainfield: "Drain Field", excavation_and_labor: "Labor & Excavation" };
+            for (const key in breakdown) {
+                const item = breakdown[key];
+                breakdownHtml += `<div class="breakdown-item"><span class="label">${labels[key]}</span><span class="value">$${item.min.toLocaleString()} - $${item.max.toLocaleString()}</span></div>`;
+            }
+        } else {
+            breakdownHtml = `<p class="sidebar-description">${description}</p>`;
+        }
+        resultsOutput.innerHTML = `
+            <h3 class="sidebar-subtitle">${systemName}</h3>
+            <div class="results-breakdown">${breakdownHtml}</div>
+            <div class="results-total">
+                <div class="label">Total Estimated Cost</div>
+                <div class="value">$${minEstimate.toLocaleString()} - $${maxEstimate.toLocaleString()}</div>
+            </div>`;
+        pdfDownloadArea.style.display = 'block';
+    };
 
-        // PDF STYLING & CONTENT
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(20);
-        doc.text("Septic System Cost Estimate", 105, 20, null, null, "center");
+    // --- 4. EVENT LISTENERS SETUP ---
+    // A single function to attach all our event listeners
+    const setupEventListeners = () => {
+        nextBtn1.addEventListener('click', () => navigateToStep(2));
+        prevBtn2.addEventListener('click', () => navigateToStep(1));
+        nextBtn2.addEventListener('click', () => {
+            navigateToStep(calcTypeSelect.value === 'installation' ? 3 : 4);
+        });
+        prevBtn3.addEventListener('click', () => navigateToStep(2));
+        nextBtn3.addEventListener('click', () => navigateToStep(4));
+        prevBtn4.addEventListener('click', () => {
+            navigateToStep(calcTypeSelect.value === 'installation' ? 3 : 2);
+        });
+        calcTypeSelect.addEventListener('change', updateSystemTypeOptions);
 
-        doc.setFontSize(11);
-        doc.setFont("helvetica", "normal");
-        doc.text(`Date: ${new Date().toLocaleDateString('en-US')}`, 15, 30);
-        doc.text(`Quote prepared for ZIP Code: ${userInput.zipCode}`, 15, 37);
-        doc.setLineWidth(0.5);
-        doc.line(15, 45, 195, 45);
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const userInputs = Object.fromEntries(new FormData(form).entries());
+            displayResults(calculator.calculateCost(userInputs));
+        });
 
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(14);
-        doc.text("Project Details", 15, 55);
-        
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(12);
-        doc.text(`- Home Size: ${userInput.bedrooms} Bedrooms`, 20, 65);
-        doc.text(`- Soil Type: ${userInput.soilType.charAt(0).toUpperCase() + userInput.soilType.slice(1)}`, 20, 72);
-        doc.text(`- System Type: ${system.name}`, 20, 79);
+        pdfDownloadArea.addEventListener('click', () => {
+            if (!latestQuoteData || latestQuoteData.error) {
+                alert("Cannot generate PDF from an invalid or incomplete estimate.");
+                return;
+            }
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ unit: "in", format: "letter" });
+            const { minEstimate, maxEstimate, type, systemName, breakdown, userInput, description } = latestQuoteData;
+            const { state, zipCode, householdSize, waterUsage, soilType } = userInput;
 
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(14);
-        doc.text("Estimated Cost Breakdown", 15, 95);
+            doc.setProperties({ title: `Septic Estimate - ${zipCode}` });
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(22);
+            doc.text("Septic System Cost Estimate", doc.internal.pageSize.getWidth() / 2, 0.75, { align: "center" });
+            doc.setFontSize(11);
+            doc.setFont("helvetica", "normal");
+            doc.text(`Date Generated: ${new Date().toLocaleDateString('en-US')}`, 1, 1.25);
+            doc.text(`Prepared for property in ZIP Code: ${zipCode}, ${state}`, 1, 1.5);
+            doc.setLineWidth(0.01);
+            doc.line(1, 1.75, 7.5, 1.75);
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(14);
+            doc.text("Project Summary", 1, 2.2);
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(11);
+            let y = 2.5;
+            doc.text(`Work Type: ${type.charAt(0).toUpperCase() + type.slice(1)}`, 1.25, y); y += 0.25;
+            doc.text(`System/Job: ${systemName}`, 1.25, y);
+            if (type === 'installation') {
+                y += 0.25; doc.text(`Household Size: ${householdSize} people`, 1.25, y);
+                y += 0.25; doc.text(`Water Usage: ${waterUsage.charAt(0).toUpperCase() + waterUsage.slice(1)}`, 1.25, y);
+                y += 0.25; doc.text(`Soil Condition: ${soilType.charAt(0).toUpperCase() + soilType.slice(1)}`, 1.25, y);
+            }
+            y += 0.6;
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(14);
+            doc.text(type === 'installation' ? "Estimated Cost Breakdown" : "Job Description", 1, y); y += 0.3;
+            doc.setFont("helvetica", "normal");
+            if (type === 'installation' && breakdown) {
+                const labels = { design_and_permits: "Design & Permitting:", tank: "Tank & Materials:", drainfield: "Drain Field & Piping:", excavation_and_labor: "Excavation & Labor:" };
+                doc.setFontSize(11);
+                for (const key in breakdown) {
+                    const item = breakdown[key];
+                    const value = `$${item.min.toLocaleString(undefined, {maximumFractionDigits:0})} - $${item.max.toLocaleString(undefined, {maximumFractionDigits:0})}`;
+                    doc.text(labels[key] || key, 1.25, y);
+                    doc.text(value, 7.5, y, { align: "right" });
+                    y += 0.25;
+                }
+            } else {
+                 doc.setFontSize(10);
+                 doc.text(description, 1.25, y, { maxWidth: 6.25 }); y += 0.5;
+            }
+            doc.setLineWidth(0.02);
+            doc.line(1, y + 0.1, 7.5, y + 0.1); y += 0.4;
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(16);
+            doc.text("Total Estimated Range:", 1, y);
+            doc.setFontSize(20);
+            doc.text(`$${minEstimate.toLocaleString()} - $${maxEstimate.toLocaleString()}`, 7.5, y, { align: "right" });
+            const disclaimer = "This is a preliminary estimate for budgeting purposes only and is not a formal quote... It is highly recommended to get multiple quotes from qualified local professionals.";
+            doc.setFont("helvetica", "italic");
+            doc.setFontSize(9);
+            doc.setTextColor("#888888");
+            doc.text(disclaimer, 1, 10, { maxWidth: 6.5, align: "left" });
+            doc.save(`Septic_Estimate_${zipCode}.pdf`);
+        });
+    };
 
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(12);
-        const basePriceText = `Base System Cost: $${system.basePrice.min.toLocaleString()} - $${system.basePrice.max.toLocaleString()}`;
-        doc.text(basePriceText, 20, 105);
+    // --- 5. INITIALIZATION ---
+    // This is the first function that runs. It orchestrates everything else.
+    const initializeApp = async () => {
+        await calculator.loadData(); // First, load all necessary data
+        populateStateOptions();      // Then, fill the dropdowns
+        updateSystemTypeOptions();
+        setupEventListeners();       // THEN, attach listeners to buttons
+        navigateToStep(1);           // Finally, show the first step
+    };
 
-        const combinedMultiplier = adjustments.regionalMultiplier * adjustments.soilMultiplier * adjustments.bedroomMultiplier;
-        doc.text(`Combined Adjustments (Location, Soil, etc.): ~${combinedMultiplier.toFixed(2)}x`, 20, 112);
-        doc.text(`Estimated Permit Fees: $${permitFee.min} - $${permitFee.max}`, 20, 119);
-        
-        doc.setLineWidth(0.2);
-        doc.line(15, 130, 195, 130);
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(16);
+    // Start the application
+    initializeApp();
 
-        // ** CRITICAL BUG FIX HERE **: 'baseprice' was corrected to 'basePrice'
-        const finalMin = (system.basePrice.min * combinedMultiplier) + permitFee.min;
-        const finalMax = (system.basePrice.max * combinedMultiplier) + permitFee.max;
+} // This closes the main onPageLoaded function
 
-        doc.text("Total Estimated Range:", 15, 140);
-        doc.setFontSize(22);
-        doc.text(`$${(Math.round(finalMin/100)*100).toLocaleString()} - $${(Math.round(finalMax/100)*100).toLocaleString()}`, 105, 150, null, null, "center");
-        doc.setLineWidth(0.5);
-        doc.line(60, 155, 150, 155);
-        
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(9);
-        doc.setTextColor(150);
-        const disclaimer = "This is a preliminary estimate for budgeting purposes only. It is not a formal quote. Costs can vary based on site-specific conditions, local regulations, and contractor pricing. It is recommended to get multiple quotes from qualified local professionals.";
-        doc.text(disclaimer, 15, 180, { maxWidth: 180 });
-
-        doc.save(`Septic_Estimate_${userInput.zipCode}.pdf`);
-    });
-
-    // --- 6. INITIALIZATION ---
-
-    // An async function to set everything up when the page loads.
-    async function initializeApp() {
-        await calculator.loadData(); // Wait for data to be fetched
-        populateSystemTypes();       // Then populate the dropdown
-        updateFormSteps();           // And set the initial form state
-    }
-
-    initializeApp(); // Run the initialization function!
-
-});
+// This is the safeguard that prevents all errors. It ensures the script
+// only runs after the HTML page is 100% ready.
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', onPageLoaded);
+} else {
+    onPageLoaded();
+}

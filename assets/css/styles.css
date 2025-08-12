@@ -1,27 +1,24 @@
-/* --- Root Variables & Global Styles --- */
-/* We define all our colors and fonts here. This makes it easy to change the site's theme later. */
+/* === ROOT VARIABLES & GLOBAL STYLES === */
 :root {
   --primary: #2563eb;
   --primary-dark: #1d4ed8;
+  --primary-light: #dbeafe;
   --secondary: #059669;
-  --accent: #f59e0b;
-  --background: #f8fafc;
+  --background: #f1f5f9; /* Lighter gray background */
   --surface: #ffffff;
   --text-primary: #1e293b;
   --text-secondary: #64748b;
   --border-color: #e2e8f0;
   --error: #dc2626;
-  --success: #16a34a;
   
   --font-primary: 'Inter', sans-serif;
   --font-headings: 'Poppins', sans-serif;
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --border-radius: 0.5rem;
+  --border-radius: 0.75rem; /* Slightly larger radius */
 }
 
-/* Basic reset to make all browsers behave the same */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -29,208 +26,193 @@
 }
 
 body {
-  font-family: var(--font-primary); /* Use our primary font */
-  background-color: var(--background); /* Use our background color */
+  font-family: var(--font-primary);
+  background-color: var(--background);
   color: var(--text-primary);
   line-height: 1.6;
 }
 
 .container {
-  max-width: 800px;
+  max-width: 960px; /* Wider container for the new layout */
   margin: 0 auto;
   padding: 0 1rem;
 }
 
-/* --- Header & Footer --- */
-.main-header, .main-footer {
-  text-align: center;
-  padding: 2rem 0;
-}
+/* === HEADER & FOOTER === */
 .main-header {
-  background-color: var(--surface);
+  text-align: center;
+  padding: 2.5rem 0;
   border-bottom: 1px solid var(--border-color);
+  background-color: var(--surface);
 }
+.main-header h1 { color: var(--text-primary); font-size: 2.25rem; }
+.main-header p { color: var(--text-secondary); font-size: 1.1rem; max-width: 600px; margin: 0.5rem auto 0; }
+.main-footer { text-align: center; padding: 2rem 0; color: var(--text-secondary); }
+.main-footer a { color: var(--primary); text-decoration: none; }
+.main-footer a:hover { text-decoration: underline; }
 
-.main-footer {
-    color: var(--text-secondary);
-}
-
-/* --- Calculator Container --- */
+/* === CALCULATOR CONTAINER & LAYOUT === */
 .calculator-container {
   background-color: var(--surface);
   border-radius: var(--border-radius);
-  box-shadow: var(--shadow-lg); /* A nice, soft shadow */
-  margin: 2rem auto;
-  padding: 2rem;
-  color: var(--text-secondary);
-}
-/* --- Step Indicator Styles --- */
-.step-indicator {
-  display: flex;
-  justify-content: space-around;
-  background-color: #f1f5f9;
-  padding: 1rem;
-  border-bottom: 1px solid var(--border-color);
-}
-.step {
-  color: var(--text-secondary);
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem; /* Space between the number and the text */
-  transition: all 0.3s ease;
-}
-/* Style for the currently active step */
-.step.active {
-  color: var(--primary);
-}
-.step span {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 24px;
-  width: 24px;
-  border-radius: 50%;
-  background-color: #cbd5e1; /* Default background for the number circle */
-  color: var(--surface);
-  font-size: 0.8rem;
-  transition: background-color 0.3s ease;
-}
-.step.active span {
-  background-color: var(--primary); /* Active background for the number circle */
+  box-shadow: var(--shadow-lg);
+  margin: 2rem 0;
+  overflow: hidden;
 }
 
-/* --- Form Styles --- */
-.septic-calculator-form {
-  padding: 2rem; /* Add some space inside the form area */
+/* New 2-column layout using modern CSS Grid */
+.calculator-layout {
+  display: grid;
+  grid-template-columns: 1fr; /* Default to 1 column on mobile */
 }
 
-.form-step {
-  display: none; /* VERY IMPORTANT: This hides all the steps by default */
-}
-.form-step.active {
-  display: block; /* This shows ONLY the step with the 'active' class */
+/* Main content area (the form) */
+.calculator-main {
+  padding: 2rem 2.5rem;
 }
 
-.step-title {
+/* Sidebar area (the results) */
+.calculator-sidebar {
+  background-color: #f8fafc; /* Slightly different background */
+  padding: 2rem 2.5rem;
+  border-left: 1px solid var(--border-color);
+}
+
+.sidebar-title {
   font-family: var(--font-headings);
-  margin-bottom: 0.25rem;
-}
-.step-subtitle {
-  margin-bottom: 2rem;
-  font-size: 1rem;
-  color: var(--text-secondary);
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
 }
 
-.form-group {
-  margin-bottom: 1.5rem;
-}
-.form-group label {
-  display: block;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-/* Universal styling for our text boxes and dropdowns */
-.form-group input,
-.form-group select {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid var(--border-color);
+.sidebar-placeholder {
+  color: var(--text-secondary);
+  text-align: center;
+  padding: 3rem 1rem;
+  border: 2px dashed var(--border-color);
   border-radius: var(--border-radius);
+  background-color: var(--surface);
+}
+
+/* === FORM STYLING === */
+.form-step { display: none; }
+.form-step.active { display: block; }
+.step-title { font-family: var(--font-headings); margin-bottom: 0.25rem; color: var(--text-primary); }
+.step-subtitle { margin-bottom: 2rem; font-size: 1rem; color: var(--text-secondary); }
+.form-group { margin-bottom: 1.5rem; }
+.form-group label { display: block; font-weight: 600; margin-bottom: 0.5rem; }
+
+.form-group input, .form-group select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
   font-size: 1rem;
   font-family: var(--font-primary);
-  background-color: #f8fafc; /* A slight off-white for the inputs */
+  background-color: var(--surface);
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
-/* Add a blue glow when a user clicks on an input */
-.form-group input:focus,
-.form-group select:focus {
+.form-group input:focus, .form-group select:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
-}
-.form-group small {
-  display: block;
-  margin-top: 0.5rem;
-  color: var(--text-secondary);
-  font-size: 0.875rem;
+  box-shadow: 0 0 0 3px var(--primary-light);
 }
 
-/* --- Form Navigation Button Styles --- */
+/* === BUTTON STYLING === */
 .form-navigation {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 2rem;
+  margin-top: 2.5rem;
   border-top: 1px solid var(--border-color);
   padding-top: 1.5rem;
 }
+/* When a step only has a "Next" button */
+.form-navigation:has(:last-child:not(:first-child)) {
+    justify-content: flex-end;
+}
 
 .button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   padding: 0.75rem 1.5rem;
   border: none;
-  border-radius: var(--border-radius);
+  border-radius: 0.5rem;
   font-family: var(--font-headings);
   font-weight: 600;
   font-size: 1rem;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease-out;
   background-color: var(--primary);
   color: white;
+  text-align: center;
 }
 .button:hover {
   background-color: var(--primary-dark);
-  transform: translateY(-2px); /* A slight "lift" on hover */
+  transform: translateY(-2px);
   box-shadow: var(--shadow-md);
 }
 
 .button.secondary-button {
-  background-color: var(--text-secondary);
-  color: white;
+  background-color: #e2e8f0;
+  color: var(--text-primary);
 }
 .button.secondary-button:hover {
-  background-color: var(--text-primary);
+  background-color: #cbd5e1;
 }
-/* --- Results & Error Message Styles --- */
-.results-summary {
-    text-align: center;
-    padding: 1rem;
+
+.button.full-width {
+  width: 100%;
+  justify-content: center;
 }
-.cost-range h2 {
-    font-size: 3rem;
-    color: var(--primary);
-    margin: 0.5rem 0;
+
+.button-icon {
+  width: 1.25rem;
+  height: 1.25rem;
 }
-.disclaimer {
-    font-size: 0.9rem;
-    color: var(--text-secondary);
+
+.pdf-download-area {
+  margin-top: 1.5rem;
 }
-.error-message {
-    background-color: #fef2f2;
-    border: 1px solid var(--error);
-    color: var(--error);
-    padding: 1rem;
-    border-radius: var(--border-radius);
-    text-align: center;
+
+/* === RESULTS BREAKDOWN === */
+.results-breakdown {
+  margin-top: 1.5rem;
 }
-.error-message h3 {
-    color: var(--error);
-    margin-bottom: 0.5rem;
+.breakdown-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.95rem;
 }
-.loading-spinner {
-  display: none;
-  margin: 2rem auto;
-  width: 50px;
-  height: 50px;
-  border: 5px solid #f3f3f3;
-  border-top: 5px solid var(--primary);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
+.breakdown-item .label { color: var(--text-secondary); }
+.breakdown-item .value { font-weight: 600; color: var(--text-primary); }
+
+.results-total {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background-color: var(--primary-light);
+  border-radius: var(--border-radius);
+  text-align: center;
 }
-.loading-spinner.active {
-  display: block;
+.results-total .label {
+  font-weight: 600;
+  color: var(--primary-dark);
 }
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+.results-total .value {
+  font-family: var(--font-headings);
+  font-size: 2.25rem;
+  color: var(--primary-dark);
+  margin-top: 0.25rem;
+}
+
+/* === RESPONSIVE DESIGN === */
+/* This is where the magic happens for the two-column layout */
+@media (min-width: 768px) {
+  .calculator-layout {
+    grid-template-columns: 55% 45%; /* 2 columns on tablets and wider */
+  }
 }
