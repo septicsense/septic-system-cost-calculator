@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open Source Septic System Cost Calculator</title>
+    <meta name="description" content="Estimate the cost of septic system installation, repair, and maintenance based on your location, property, and soil type.">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+    
+    <!-- Stylesheets (We will create these files soon) -->
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/animations.css">
+
+    <!-- Deferred JavaScript for performance -->
+<script src="node_modules/jspdf/dist/jspdf.umd.min.js" defer></script>
+<script src="assets/js/calculator.js" defer></script>
+<script src="assets/js/main.js" defer></script>
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="container">
+            <h1>Septic System Cost Calculator</h1>
+            <p>An open-source tool for accurate septic system estimates.</p>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <div id="calculator-container" class="calculator-container">
+                <!-- The multi-step form will go here -->
+                <div class="step-indicator">
+    <div class="step active" data-step="1"><span>1</span> Location</div>
+    <div class="step" data-step="2"><span>2</span> Property</div>
+    <div class="step" data-step="3"><span>3</span> System</div>
+    <div class="step" data-step="4"><span>4</span> Results</div>
+</div>
+
+<form id="septic-calculator-form" class="septic-calculator-form" novalidate>
+    <!-- Step 1: Location -->
+    <div class="form-step active" data-step="1">
+        <h2 class="step-title">Where is your property located?</h2>
+        <p class="step-subtitle">Costs vary significantly by state and local area.</p>
+        <div class="form-group">
+            <label for="zip-code">Enter your 5-digit ZIP Code</label>
+            <input type="text" id="zip-code" name="zipCode" inputmode="numeric" pattern="[0-9]{5}" placeholder="e.g., 90210" required>
+            <small>This helps us adjust for local labor and material costs.</small>
+        </div>
+    </div>
+
+    <!-- Step 2: Property Details -->
+    <div class="form-step" data-step="2">
+        <h2 class="step-title">Tell us about your property.</h2>
+        <p class="step-subtitle">The size of your home is the primary factor in system sizing.</p>
+        <div class="form-group">
+            <label for="bedrooms">Number of Bedrooms</label>
+            <select id="bedrooms" name="bedrooms" required>
+                <option value="" disabled selected>Select...</option>
+                <option value="1-2">1-2 Bedrooms (Small)</option>
+                <option value="3-4">3-4 Bedrooms (Standard)</option>
+                <option value="5-6">5-6 Bedrooms (Large)</option>
+                <option value="7+">7+ Bedrooms (Very Large)</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="soil-type">Predominant Soil Type</label>
+            <select id="soil-type" name="soilType" required>
+                <option value="" disabled selected>Select...</option>
+                <option value="ideal">Loam/Sandy (Ideal)</option>
+                <option value="moderate">Clay/Silt (Moderate)</option>
+                <option value="difficult">Rocky/Gravel (Difficult)</option>
+                <option value="special">Poor/Saturated (Requires Special System)</option>
+            </select>
+            <small>Unsure? Choose the option that best describes your area's ground.</small>
+        </div>
+    </div>
+
+    <!-- Step 3: System Type -->
+    <div class="form-step" data-step="3">
+        <h2 class="step-title">What are you looking for?</h2>
+        <p class="step-subtitle">Select the type of work and system you're interested in.</p>
+        <div class="form-group">
+            <label for="calculation-type">Type of Work</label>
+            <select id="calculation-type" name="calculationType" required>
+                <option value="installation">New Installation</option>
+                <option value="repair">Major Repair</option>
+                <option value="maintenance">Routine Maintenance</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="system-type">Septic System Type</label>
+            <select id="system-type" name="systemType" required>
+                <!-- Options will be populated by our JavaScript later -->
+            </select>
+            <small>We will provide recommendations here later.</small>
+        </div>
+    </div>
+
+    <!-- Step 4: Results -->
+    <div class="form-step" data-step="4">
+        <h2 class="step-title">Your Estimated Costs</h2>
+        <div id="results-output">
+            <!-- Calculation results will be injected here by JavaScript -->
+        </div>
+        <div id="pdf-download-area" style="display: none;">
+            <button type="button" id="download-pdf-btn" class="button">Download Quote as PDF</button>
+        </div>
+    </div>
+
+    <!-- Navigation buttons for the form -->
+    <div class="form-navigation">
+        <button type="button" id="prev-btn" class="button secondary-button" style="display: none;">Previous</button>
+        <button type="button" id="next-btn" class="button">Next</button>
+        <button type="submit" id="calculate-btn" class="button" style="display: none;">Calculate</button>
+    </div>
+</form>
+            </div>
+        </div>
+    </main>
+
+    <footer class="main-footer">
+        <div class="container">
+            <p>Open Source Project | MIT License</p>
+        </div>
+    </footer>
+
+</body>
+</html>

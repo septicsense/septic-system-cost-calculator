@@ -1,0 +1,46 @@
+/* --- Animation Definitions --- */
+
+/* A simple fade-in effect */
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out forwards;
+}
+
+/* An effect to slide in from the right */
+.slide-in-from-right {
+  animation: slideInFromRight 0.4s ease-out forwards;
+}
+
+/* An effect to slide out to the left */
+.slide-out-to-left {
+  animation: slideOutToLeft 0.4s ease-out forwards;
+}
+
+/* --- Keyframes --- */
+/* These define the "start" and "end" points of our animations. */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInFromRight {
+  from { 
+    opacity: 0;
+    transform: translateX(30px); /* Start 30 pixels to the right */
+  }
+  to { 
+    opacity: 1;
+    transform: translateX(0); /* End at its normal position */
+  }
+}
+
+@keyframes slideOutToLeft {
+  from { 
+    opacity: 1;
+    transform: translateX(0); /* Start at its normal position */
+  }
+  to { 
+    opacity: 0;
+    transform: translateX(-30px); /* End 30 pixels to the left */
+  }
+}

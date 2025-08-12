@@ -1,0 +1,89 @@
+{
+  "installation": {
+    "conventional": {
+      "name": "Conventional System",
+      "description": "A standard, gravity-fed system with a septic tank and a gravel-and-pipe drain field. Best for properties with ideal soil and space.",
+      "basePrice": { "min": 3500, "max": 8000 },
+      "bedroomMultiplier": {
+        "1-2": 1.0,
+        "3-4": 1.25,
+        "5-6": 1.6,
+        "7+": 2.0
+      },
+      "soilMultiplier": {
+        "ideal": 1.0,
+        "moderate": 1.2,
+        "difficult": 1.5,
+        "special": -1
+      }
+    },
+    "chamber": {
+      "name": "Chamber System",
+      "description": "Uses interlocking chambers instead of gravel. Requires less space and is suitable for areas where gravel is scarce.",
+      "basePrice": { "min": 4500, "max": 11000 },
+      "bedroomMultiplier": {
+        "1-2": 1.0,
+        "3-4": 1.2,
+        "5-6": 1.5,
+        "7+": 1.9
+      },
+      "soilMultiplier": {
+        "ideal": 1.0,
+        "moderate": 1.15,
+        "difficult": 1.4,
+        "special": -1
+      }
+    },
+    "drip": {
+      "name": "Drip Distribution System",
+      "description": "Uses small tubing to slowly distribute effluent over a large area. Ideal for shallow soil, steep slopes, or wooded lots.",
+      "basePrice": { "min": 8000, "max": 18000 },
+      "bedroomMultiplier": {
+        "1-2": 1.0,
+        "3-4": 1.15,
+        "5-6": 1.4,
+        "7+": 1.8
+      },
+      "soilMultiplier": {
+        "ideal": 1.0,
+        "moderate": 1.1,
+        "difficult": 1.25,
+        "special": 1.0
+      }
+    },
+    "aerobic": {
+      "name": "Aerobic Treatment Unit (ATU)",
+      "description": "Uses oxygen to treat wastewater to a higher quality. Necessary for poor soil, small lots, or near sensitive water bodies.",
+      "basePrice": { "min": 10000, "max": 20000 },
+      "bedroomMultiplier": {
+        "1-2": 1.0,
+        "3-4": 1.2,
+        "5-6": 1.5,
+        "7+": 2.0
+      },
+      "soilMultiplier": {
+        "ideal": 1.0,
+        "moderate": 1.05,
+        "difficult": 1.1,
+        "special": 1.0
+      }
+    },
+    "mound": {
+      "name": "Mound System",
+      "description": "An engineered drain field built above the natural ground. Required for high water tables, shallow bedrock, or very poor soil.",
+      "basePrice": { "min": 12000, "max": 25000 },
+      "bedroomMultiplier": {
+        "1-2": 1.0,
+        "3-4": 1.2,
+        "5-6": 1.5,
+        "7+": 1.9
+      },
+      "soilMultiplier": {
+        "ideal": -1,
+        "moderate": 1.1,
+        "difficult": 1.2,
+        "special": 1.0
+      }
+    }
+  }
+}
