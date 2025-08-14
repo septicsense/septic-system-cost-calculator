@@ -28,19 +28,16 @@
                 <p>Follow the steps to generate a detailed cost profile.</p>
             </div>
 
-            <!-- The Stepper Navigation: Shows user's progress -->
+            <!-- The Stepper Navigation -->
             <div class="stepper">
                 <div class="step active" id="step-1">
-                    <div class="step-number">1</div>
-                    <div class="step-label">Work Type</div>
+                    <div class="step-number">1</div><div class="step-label">Work Type</div>
                 </div>
                 <div class="step" id="step-2">
-                    <div class="step-number">2</div>
-                    <div class="step-label">Details</div>
+                    <div class="step-number">2</div><div class="step-label">Details</div>
                 </div>
                 <div class="step" id="step-3">
-                    <div class="step-number">3</div>
-                    <div class="step-label">Quote</div>
+                    <div class="step-number">3</div><div class="step-label">Quote</div>
                 </div>
             </div>
 
@@ -50,16 +47,13 @@
                     <h3 class="panel-title">What type of work do you need?</h3>
                     <div class="card-selection-container">
                         <div class="selection-card" data-work-type="installation">
-                            <h4>New System Installation</h4>
-                            <p>Full, itemized estimate for a new system.</p>
+                            <h4>New System Installation</h4><p>Full, itemized estimate for a new system.</p>
                         </div>
                         <div class="selection-card" data-work-type="repair">
-                            <h4>System Repair</h4>
-                            <p>Estimate costs for common component repairs.</p>
+                            <h4>System Repair</h4><p>Estimate costs for common component repairs.</p>
                         </div>
                         <div class="selection-card" data-work-type="maintenance">
-                            <h4>Routine Maintenance</h4>
-                            <p>Calculate costs for pumping and inspections.</p>
+                            <h4>Routine Maintenance</h4><p>Calculate costs for pumping and inspections.</p>
                         </div>
                     </div>
                 </div>
@@ -81,15 +75,70 @@
                         </select>
                     </div>
 
-                    <!-- Dynamic Question Groups -->
+                    <!-- Dynamic Question Group for INSTALLATION -->
                     <div id="installation-questions" class="hidden">
-                        <!-- Content inserted here from our previous design -->
+                         <div class="form-block">
+                            <label for="bedrooms" class="form-label-bold">Bedrooms in Home</label>
+                            <p class="form-hint">Determines the required system size.</p>
+                            <select id="bedrooms" name="bedrooms" required>
+                                <option value="1-2">1-2 Bedrooms</option>
+                                <option value="3" selected>3 Bedrooms</option>
+                                <option value="4">4 Bedrooms</option>
+                                <option value="5">5 Bedrooms</option>
+                                <option value="6+">6+ Bedrooms</option>
+                            </select>
+                        </div>
+                        <div class="form-block">
+                             <label for="soil-type" class="form-label-bold">Site Conditions</label>
+                             <p class="form-hint">Determines which system types are possible.</p>
+                             <select id="soil-type" name="soil-type" required>
+                                <option value="" disabled selected>Select your soil type...</option>
+                                <option value="good">Good (Flat, well-draining loam/sand)</option>
+                                <option value="average">Average (Slight slope, some clay)</option>
+                                <option value="poor">Poor (Heavy clay, steep, rocky)</option>
+                                <option value="vpoor">Very Poor (Fails perc test, small lot, bedrock)</option>
+                            </select>
+                        </div>
+                        <div class="form-block">
+                            <label for="system-type" class="form-label-bold">System Type</label>
+                            <p class="form-hint">Options are filtered based on site conditions.</p>
+                            <select id="system-type" name="system-type" required>
+                                <option value="" disabled selected>Select soil type first...</option>
+                            </select>
+                        </div>
+                        <div class="form-block">
+                            <label for="tank-material" class="form-label-bold">Tank Material</label>
+                            <select id="tank-material" name="tank-material" required>
+                                <option value="concrete" selected>Concrete (Most common)</option>
+                                <option value="plastic">Plastic / Polyethylene</option>
+                                <option value="fiberglass">Fiberglass</option>
+                            </select>
+                        </div>
                     </div>
+
+                    <!-- Dynamic Question Group for REPAIR -->
                     <div id="repair-questions" class="hidden">
-                        <!-- Content inserted here from our previous design -->
+                        <div class="form-block">
+                            <label class="form-label-bold">Select Required Repairs</label>
+                            <p class="form-hint">Check all that apply. Costs are for standard replacements.</p>
+                            <div class="form-group-checkbox"><input type="checkbox" id="repair-lid" name="repair-item" value="lid"><label for="repair-lid">Tank Lid Replacement</label></div>
+                            <div class="form-group-checkbox"><input type="checkbox" id="repair-baffle" name="repair-item" value="baffle"><label for="repair-baffle">Baffle Repair / Replacement</label></div>
+                            <div class="form-group-checkbox"><input type="checkbox" id="repair-pump" name="repair-item" value="pump"><label for="repair-pump">Effluent Pump Replacement</label></div>
+                            <div class="form-group-checkbox"><input type="checkbox" id="repair-dbox" name="repair-item" value="dbox"><label for="repair-dbox">Distribution Box (D-Box) Replacement</label></div>
+                        </div>
                     </div>
+                    
+                    <!-- Dynamic Question Group for MAINTENANCE -->
                     <div id="maintenance-questions" class="hidden">
-                        <!-- Content inserted here from our previous design -->
+                         <div class="form-block">
+                            <label for="tank-size" class="form-label-bold">Septic Tank Size</label>
+                            <p class="form-hint">If unsure, 1000-1250 gallons is typical for a 3-4 bedroom home.</p>
+                            <select id="tank-size" name="tank-size" required>
+                                <option value="1000" selected>1000 Gallons</option>
+                                <option value="1250">1250 Gallons</option>
+                                <option value="1500">1500 Gallons</option>
+                            </select>
+                        </div>
                     </div>
                     
                     <div class="panel-navigation">
@@ -112,21 +161,12 @@
                 <div id="results-output" class="hidden">
                     <h3 class="sidebar-title" id="results-summary-text">Estimate for New Installation</h3>
                     <h2 class="price-range" id="results-range">$0 - $0</h2>
-                    
                     <div class="breakdown-section">
-                        <h4>Itemized Cost Breakdown</h4>
-                        <div id="results-breakdown">
-                            <!-- Itemized breakdown will be inserted here -->
-                        </div>
+                        <h4>Itemized Cost Breakdown</h4><div id="results-breakdown"></div>
                     </div>
-
                     <div class="notes-section">
-                         <h4>Expert Notes</h4>
-                         <div id="results-notes">
-                            <!-- Expert notes will be inserted here -->
-                         </div>
+                         <h4>Expert Notes</h4><div id="results-notes"></div>
                     </div>
-
                     <button type="button" id="start-over-btn" class="button secondary-button full-width">Start New Estimate</button>
                 </div>
             </div>
