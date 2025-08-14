@@ -1,96 +1,136 @@
 {
-  "installation": {
-    "conventional": {
+  "systems": {
+    "conventional_gravity": {
       "name": "Conventional Gravity System",
-      "description": "A standard system using gravity to move effluent through a septic tank and into a gravel-and-pipe drain field. Requires suitable soil and a sloped yard.",
-      "cost_components": {
-        "design_and_permits": { "min": 500, "max": 1500 },
-        "tank": { "min": 800, "max": 1500 },
-        "drainfield": { "min": 1500, "max": 4000 },
-        "excavation_and_labor": { "min": 1200, "max": 3000 }
-      },
-      "soil_multiplier": { "ideal": 1.0, "moderate": 1.3, "difficult": 1.8, "special": -1 },
-      "gpd_multiplier": { "low": 0.9, "average": 1.0, "high": 1.2 }
+      "type": "conventional",
+      "description": "The standard system. Uses gravity to move wastewater to a gravel-and-pipe drainfield. Best for sloped lots with good soil.",
+      "soil_compatibility": ["good", "average"],
+      "cost_breakdown": {
+        "permits_and_design": [500, 1500],
+        "septic_tank": [900, 2000],
+        "drainfield_materials": [1500, 4000],
+        "excavation_and_labor": [2500, 6000],
+        "final_grading": [500, 1000]
+      }
     },
-    "chamber": {
+    "chamber_system": {
       "name": "Chamber System",
-      "description": "Uses interlocking plastic chambers instead of gravel in the drain field. Requires less space and is ideal where gravel is scarce or expensive.",
-      "cost_components": {
-        "design_and_permits": { "min": 500, "max": 1500 },
-        "tank": { "min": 800, "max": 1500 },
-        "drainfield": { "min": 2500, "max": 6000 },
-        "excavation_and_labor": { "min": 1500, "max": 3500 }
-      },
-      "soil_multiplier": { "ideal": 1.0, "moderate": 1.2, "difficult": 1.6, "special": -1 },
-      "gpd_multiplier": { "low": 0.9, "average": 1.0, "high": 1.2 }
+      "type": "conventional",
+      "description": "Uses interlocking plastic chambers instead of gravel in the drainfield. Requires less space and is ideal where gravel is scarce.",
+      "soil_compatibility": ["good", "average"],
+      "cost_breakdown": {
+        "permits_and_design": [500, 1500],
+        "septic_tank": [900, 2000],
+        "drainfield_chambers": [2500, 5500],
+        "excavation_and_labor": [2800, 6500],
+        "final_grading": [500, 1000]
+      }
     },
-    "aerobic": {
+    "conventional_pump": {
+      "name": "Conventional Pump System",
+      "type": "conventional",
+      "description": "A standard system that uses a pump to move wastewater to the drainfield, necessary when the drainfield is uphill from the tank.",
+      "soil_compatibility": ["good", "average"],
+      "cost_breakdown": {
+        "permits_and_design": [600, 1600],
+        "septic_tank_and_pump_tank": [1800, 3500],
+        "drainfield_materials": [1500, 4000],
+        "excavation_and_labor": [3000, 7000],
+        "electrical_and_controls": [700, 1500],
+        "final_grading": [500, 1000]
+      }
+    },
+    "aerobic_treatment_unit": {
       "name": "Aerobic Treatment Unit (ATU)",
-      "description": "An advanced system that uses oxygen to treat wastewater to a higher quality. Necessary for poor soil, small lots, or near sensitive water bodies.",
-      "cost_components": {
-        "design_and_permits": { "min": 1000, "max": 2000 },
-        "tank": { "min": 6000, "max": 10000 },
-        "drainfield": { "min": 2000, "max": 5000 },
-        "excavation_and_labor": { "min": 2000, "max": 4000 }
-      },
-      "soil_multiplier": { "ideal": 1.0, "moderate": 1.0, "difficult": 1.05, "special": 1.1 },
-      "gpd_multiplier": { "low": 0.95, "average": 1.0, "high": 1.15 }
+      "type": "advanced",
+      "description": "A high-tech system using oxygen to treat wastewater to a high quality. Required for poor soil, small lots, or near sensitive water bodies.",
+      "soil_compatibility": ["average", "poor", "vpoor"],
+      "cost_breakdown": {
+        "permits_and_engineered_design": [1000, 2500],
+        "atu_tank_and_components": [7000, 12000],
+        "drainfield_materials": [1500, 4000],
+        "excavation_and_labor": [3000, 6000],
+        "electrical_and_alarms": [800, 1500]
+      }
     },
-    "mound": {
+    "mound_system": {
       "name": "Mound System",
-      "description": "A raised drain field built with specific sand fill. Required for high water tables, shallow bedrock, or very poor soil where other systems won't work.",
-      "cost_components": {
-        "design_and_permits": { "min": 1500, "max": 2500 },
-        "tank": { "min": 1000, "max": 2000 },
-        "drainfield": { "min": 8000, "max": 15000 },
-        "excavation_and_labor": { "min": 3000, "max": 5000 }
-      },
-      "soil_multiplier": { "ideal": -1, "moderate": 1.1, "difficult": 1.2, "special": 1.0 },
-      "gpd_multiplier": { "low": 0.9, "average": 1.0, "high": 1.1 }
+      "type": "advanced",
+      "description": "An engineered, raised drainfield built with specific sand fill. Used for high water tables, shallow bedrock, or very poor soil.",
+      "soil_compatibility": ["poor", "vpoor"],
+      "cost_breakdown": {
+        "permits_and_engineered_design": [1200, 3000],
+        "septic_tank_and_pump_tank": [2000, 4000],
+        "engineered_sand_fill_delivery": [4000, 9000],
+        "drainfield_materials": [1500, 3000],
+        "excavation_and_heavy_labor": [4500, 8500],
+        "final_grading_and_landscaping": [1000, 2000]
+      }
+    },
+    "recirculating_sand_filter": {
+      "name": "Recirculating Sand Filter",
+      "type": "advanced",
+      "description": "Treats wastewater by pumping it through a sand filter multiple times before dispersal. Highly effective but requires significant space.",
+      "soil_compatibility": ["poor", "vpoor"],
+      "cost_breakdown": {
+        "permits_and_engineered_design": [1000, 2800],
+        "septic_tank_and_pump_tank": [2000, 4000],
+        "sand_filter_bed_construction": [5000, 9000],
+        "drainfield_materials": [1500, 3500],
+        "excavation_and_labor": [4000, 8000],
+        "electrical_and_controls": [800, 1600]
+      }
+    },
+    "drip_distribution": {
+      "name": "Drip Distribution System",
+      "type": "advanced",
+      "description": "Versatile system using a network of small tubes to slowly disperse treated effluent. Excellent for difficult terrain and shallow soil.",
+      "soil_compatibility": ["average", "poor", "vpoor"],
+      "cost_breakdown": {
+        "permits_and_engineered_design": [800, 2000],
+        "septic_tank_and_pump_tank": [2000, 4000],
+        "drip_tubing_filters_and_controls": [4500, 8500],
+        "trenching_and_labor": [3500, 7000],
+        "electrical_and_setup": [700, 1500]
+      }
+    },
+    "evapotranspiration_bed": {
+      "name": "Evapotranspiration (ET) Bed",
+      "type": "specialized",
+      "description": "A lined bed that disposes of wastewater through evaporation. Only suitable for very arid (dry) climates with high evaporation rates.",
+      "soil_compatibility": ["vpoor"],
+      "cost_breakdown": {
+        "permits_and_specialized_design": [1500, 3500],
+        "septic_tank": [900, 2000],
+        "bed_liner_and_fill_material": [6000, 12000],
+        "excavation_and_labor": [3000, 6000]
+      }
+    },
+    "constructed_wetland": {
+      "name": "Constructed Wetland System",
+      "type": "specialized",
+      "description": "A highly specialized system that mimics natural wetlands to treat wastewater. Requires significant space and expert design.",
+      "soil_compatibility": ["vpoor"],
+      "cost_breakdown": {
+        "permits_and_ecological_design": [2000, 5000],
+        "septic_tank": [900, 2000],
+        "wetland_cell_construction": [8000, 15000],
+        "aquatic_plants_and_media": [1000, 3000],
+        "excavation_and_labor": [4000, 8000]
+      }
     }
   },
   "repair": {
-    "pump_replacement": {
-      "name": "Effluent Pump Replacement",
-      "description": "Replacement of a failed pump in systems that require one (e.g., mound, drip, some advanced systems).",
-      "basePrice": { "min": 800, "max": 1500 }
-    },
-    "baffle_repair": {
-      "name": "Inlet/Outlet Baffle Repair",
-      "description": "Repairing or replacing the baffles inside the septic tank that direct flow and prevent solids from escaping.",
-      "basePrice": { "min": 300, "max": 700 }
-    },
-    "drainfield_jetting": {
-      "name": "Drain Field Hydro-Jetting",
-      "description": "A procedure to clear clogged drain field lines with high-pressure water to attempt to restore function.",
-      "basePrice": { "min": 1000, "max": 2500 }
-    },
-    "tank_lid_replacement": {
-      "name": "Tank Lid/Riser Replacement",
-      "description": "Replacing a cracked or unsafe septic tank lid or adding a riser to bring access to the surface.",
-      "basePrice": { "min": 400, "max": 900 }
-    }
+    "pump_replacement": { "name": "Effluent Pump Replacement", "min": 900, "max": 2500 },
+    "baffle_repair": { "name": "Inlet/Outlet Baffle Repair", "min": 350, "max": 900 },
+    "distribution_box": { "name": "Distribution Box Replacement", "min": 800, "max": 2000 },
+    "pipe_repair": { "name": "Cracked Pipe Repair (Tank to D-Box)", "min": 1000, "max": 3000 },
+    "lid_replacement": { "name": "Tank Lid/Riser Replacement", "min": 400, "max": 1000 }
   },
   "maintenance": {
-    "pumping": {
-      "name": "Routine Tank Pumping (3-5 years)",
-      "description": "Standard removal of accumulated solids and sludge from the septic tank.",
-      "basePrice": { "min": 350, "max": 650 }
-    },
-    "inspection": {
-      "name": "Full System Inspection",
-      "description": "A comprehensive visual inspection of all system components, often done when buying or selling a home.",
-      "basePrice": { "min": 400, "max": 700 }
-    },
-    "filter_cleaning": {
-      "name": "Effluent Filter Cleaning (Annual)",
-      "description": "Cleaning the filter on the outlet of the septic tank to prevent clogs in the drain field.",
-      "basePrice": { "min": 100, "max": 250 }
-    },
-    "atu_service_contract": {
-      "name": "Aerobic System Service (Annual)",
-      "description": "Mandatory annual or semi-annual service for Aerobic Treatment Units to ensure proper function.",
-      "basePrice": { "min": 400, "max": 800 }
-    }
+    "pumping": { "name": "Routine Tank Pumping", "min": 300, "max": 700 },
+    "inspection": { "name": "Full System Inspection", "min": 350, "max": 600 },
+    "filter_cleaning": { "name": "Effluent Filter Cleaning", "min": 100, "max": 250 },
+    "atu_service_contract": { "name": "Aerobic System Service (Annual)", "min": 300, "max": 700 }
   }
 }
