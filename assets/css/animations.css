@@ -1,46 +1,80 @@
-/* --- Animation Definitions --- */
+/* === MODERN & PROFESSIONAL ANIMATION LIBRARY === */
+/* 
+    Rewritten for a smoother, more subtle user experience.
+    Uses a custom cubic-bezier for a professional easing curve.
+    Combines opacity and transform for seamless transitions.
+*/
 
-/* A simple fade-in effect */
+:root {
+  --animation-curve: cubic-bezier(0.25, 0.8, 0.25, 1);
+  --animation-duration: 0.5s;
+}
+
+/* --- Animation Class Definitions --- */
+
+/* A subtle fade-in, the new default */
 .fade-in {
-  animation: fadeIn 0.5s ease-in-out forwards;
+  animation: subtleFadeIn var(--animation-duration) var(--animation-curve) forwards;
 }
 
-/* An effect to slide in from the right */
-.slide-in-from-right {
-  animation: slideInFromRight 0.4s ease-out forwards;
+/* Fades and slides in from below. Perfect for new panels. */
+.fade-in-up {
+  animation: subtleFadeInUp var(--animation-duration) var(--animation-curve) forwards;
 }
 
-/* An effect to slide out to the left */
-.slide-out-to-left {
-  animation: slideOutToLeft 0.4s ease-out forwards;
+/* Fades and slides in from the right. For secondary content. */
+.fade-in-right {
+  animation: subtleFadeInRight var(--animation-duration) var(--animation-curve) forwards;
 }
 
-/* --- Keyframes --- */
-/* These define the "start" and "end" points of our animations. */
+/* For removing elements from the view */
+.fade-out {
+  animation: subtleFadeOut calc(var(--animation-duration) / 2) ease-out forwards;
+}
 
-@keyframes fadeIn {
+/* This is a utility for staggering animations on child elements */
+.stagger-children > * {
+  animation: subtleFadeInUp var(--animation-duration) var(--animation-curve) forwards;
+  animation-delay: var(--stagger-delay, 0); /* Delay can be set via JS */
+  opacity: 0; /* Start hidden */
+}
+
+
+/* --- Keyframe Definitions --- */
+
+@keyframes subtleFadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
-@keyframes slideInFromRight {
+@keyframes subtleFadeInUp {
   from { 
     opacity: 0;
-    transform: translateX(30px); /* Start 30 pixels to the right */
+    transform: translateY(20px); /* Start slightly lower */
   }
   to { 
     opacity: 1;
-    transform: translateX(0); /* End at its normal position */
+    transform: translateY(0);
   }
 }
 
-@keyframes slideOutToLeft {
+@keyframes subtleFadeInRight {
+  from { 
+    opacity: 0;
+    transform: translateX(20px); /* Start slightly to the right */
+  }
+  to { 
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes subtleFadeOut {
   from { 
     opacity: 1;
-    transform: translateX(0); /* Start at its normal position */
   }
   to { 
     opacity: 0;
-    transform: translateX(-30px); /* End 30 pixels to the left */
+    /* We don't transform on the way out to avoid layout shifts */
   }
 }
