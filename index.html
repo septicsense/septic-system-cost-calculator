@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Septic System Estimator | Modern Cost Analysis Tool</title>
-    <meta name="description" content="A modern, app-style estimator for septic system installation, repair, and maintenance. Get a transparent, real-world cost analysis.">
+    <title>Septic System Estimator | Professional Analysis Tool</title>
+    <meta name="description" content="The definitive estimator for septic system installation, repair, and maintenance. Get a hyper-detailed, real-world cost analysis.">
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,6 +13,7 @@
     
     <!-- Stylesheets -->
     <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/animations.css"> <!-- Animation file is now linked -->
     
     <!-- Deferred JavaScript for performance -->
     <script src="assets/js/script.js" defer></script>
@@ -23,36 +24,30 @@
     <div class="app-layout">
         <!-- Left Side: The Wizard / Form -->
         <div class="app-main">
-            <div class="app-header">
+            <div class="app-header fade-in-up">
                 <h2>Septic System Estimator</h2>
-                <p>Follow the steps to generate a detailed cost profile.</p>
+                <p>Follow the steps to generate a hyper-detailed cost profile.</p>
             </div>
 
             <!-- The Stepper Navigation -->
-            <div class="stepper">
-                <div class="step active" id="step-1">
-                    <div class="step-number">1</div><div class="step-label">Work Type</div>
-                </div>
-                <div class="step" id="step-2">
-                    <div class="step-number">2</div><div class="step-label">Details</div>
-                </div>
-                <div class="step" id="step-3">
-                    <div class="step-number">3</div><div class="step-label">Quote</div>
-                </div>
+            <div class="stepper fade-in-up" style="animation-delay: 0.1s;">
+                <div class="step active" id="step-1"><div class="step-number">1</div><div class="step-label">Work Type</div></div>
+                <div class="step" id="step-2"><div class="step-number">2</div><div class="step-label">Details</div></div>
+                <div class="step" id="step-3"><div class="step-number">3</div><div class="step-label">Quote</div></div>
             </div>
 
             <form id="septic-calculator-form">
                 <!-- Panel 1: Select Work Type -->
                 <div class="form-panel active" id="panel-1">
-                    <h3 class="panel-title">What type of work do you need?</h3>
+                    <h3 class="panel-title fade-in-up" style="animation-delay: 0.2s;">What type of work do you need?</h3>
                     <div class="card-selection-container">
-                        <div class="selection-card" data-work-type="installation">
-                            <h4>New System Installation</h4><p>Full, itemized estimate for a new system.</p>
+                        <div class="selection-card fade-in-up" style="animation-delay: 0.3s;" data-work-type="installation">
+                            <h4>New System Installation</h4><p>Full, itemized estimate for a brand new system.</p>
                         </div>
-                        <div class="selection-card" data-work-type="repair">
+                        <div class="selection-card fade-in-up" style="animation-delay: 0.4s;" data-work-type="repair">
                             <h4>System Repair</h4><p>Estimate costs for common component repairs.</p>
                         </div>
-                        <div class="selection-card" data-work-type="maintenance">
+                        <div class="selection-card fade-in-up" style="animation-delay: 0.5s;" data-work-type="maintenance">
                             <h4>Routine Maintenance</h4><p>Calculate costs for pumping and inspections.</p>
                         </div>
                     </div>
@@ -63,82 +58,103 @@
                     <h3 class="panel-title" id="panel-2-title">Please provide the details.</h3>
                     
                     <!-- Shared Question: Region (Used by all modes) -->
-                    <div class="form-block">
+                    <fieldset class="form-block">
                         <label for="region" class="form-label-bold">Location</label>
-                        <p class="form-hint">Adjusts for local labor and material costs.</p>
+                        <p class="form-hint">Adjusts for local labor and material costs, the biggest factor in your final price.</p>
                         <select id="region" name="region" required>
                             <option value="" disabled selected>Select your area type...</option>
-                            <option value="rural">Rural / Low Cost Area</option>
-                            <option value="suburban">Suburban / Average Cost Area</option>
-                            <option value="urban">Urban / High Cost Area</option>
-                            <option value="metro">Major Metro / Very High Cost Area</option>
+                            <!-- Options will be populated from JSON -->
                         </select>
-                    </div>
+                    </fieldset>
 
-                    <!-- Dynamic Question Group for INSTALLATION -->
+                    <!-- === Dynamic Question Group for INSTALLATION === -->
                     <div id="installation-questions" class="hidden">
-                         <div class="form-block">
-                            <label for="bedrooms" class="form-label-bold">Bedrooms in Home</label>
-                            <p class="form-hint">Determines the required system size.</p>
-                            <select id="bedrooms" name="bedrooms" required>
-                                <option value="1-2">1-2 Bedrooms</option>
-                                <option value="3" selected>3 Bedrooms</option>
-                                <option value="4">4 Bedrooms</option>
-                                <option value="5">5 Bedrooms</option>
-                                <option value="6+">6+ Bedrooms</option>
-                            </select>
-                        </div>
-                        <div class="form-block">
-                             <label for="soil-type" class="form-label-bold">Site Conditions</label>
-                             <p class="form-hint">Determines which system types are possible.</p>
-                             <select id="soil-type" name="soil-type" required>
-                                <option value="" disabled selected>Select your soil type...</option>
-                                <option value="good">Good (Flat, well-draining loam/sand)</option>
-                                <option value="average">Average (Slight slope, some clay)</option>
-                                <option value="poor">Poor (Heavy clay, steep, rocky)</option>
-                                <option value="vpoor">Very Poor (Fails perc test, small lot, bedrock)</option>
-                            </select>
-                        </div>
-                        <div class="form-block">
-                            <label for="system-type" class="form-label-bold">System Type</label>
-                            <p class="form-hint">Options are filtered based on site conditions.</p>
-                            <select id="system-type" name="system-type" required>
-                                <option value="" disabled selected>Select soil type first...</option>
-                            </select>
-                        </div>
-                        <div class="form-block">
-                            <label for="tank-material" class="form-label-bold">Tank Material</label>
-                            <select id="tank-material" name="tank-material" required>
-                                <option value="concrete" selected>Concrete (Most common)</option>
-                                <option value="plastic">Plastic / Polyethylene</option>
-                                <option value="fiberglass">Fiberglass</option>
-                            </select>
-                        </div>
+                        <fieldset class="form-block">
+                            <legend>Household Size & Usage</legend>
+                            <div class="form-group-split">
+                                <div class="form-group">
+                                    <label for="bedrooms">Bedrooms</label>
+                                    <select id="bedrooms" name="bedrooms" required>
+                                        <option value="1-2">1-2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option><option value="6+">6+</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="people">People in Home</label>
+                                    <select id="people" name="people" required>
+                                        <option value="1-2">1-2</option><option value="3-4" selected>3-4</option><option value="5-6">5-6</option><option value="7+">7+</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="water-usage">Daily Water Use Habits</label>
+                                <select id="water-usage" name="water-usage" required>
+                                    <option value="low">Conservative (Short showers, efficient appliances)</option>
+                                    <option value="average" selected>Average (Typical daily use)</option>
+                                    <option value="high">High (Long showers, frequent laundry/dishes)</option>
+                                </select>
+                            </div>
+                        </fieldset>
+
+                        <fieldset class="form-block">
+                            <legend>Site & System Specifications</legend>
+                            <div class="form-group">
+                                 <label for="soil-type">Site & Soil Conditions</label>
+                                 <p class="form-hint">This is the critical factor that determines which system types are physically possible.</p>
+                                 <select id="soil-type" name="soil-type" required>
+                                    <option value="" disabled selected>Select your soil type...</option>
+                                    <option value="good">Good (Flat, deep, well-draining soil)</option>
+                                    <option value="average">Average (Slight slope, some clay, minor rocks)</option>
+                                    <option value="poor">Poor (Heavy clay, steep slope, very rocky)</option>
+                                    <option value="vpoor">Problematic (High water table, bedrock, small lot)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="system-type">System Type</label>
+                                <p class="form-hint">Options are filtered based on your site conditions. Descriptions will appear on the right.</p>
+                                <select id="system-type" name="system-type" required>
+                                    <option value="" disabled selected>Select soil type first...</option>
+                                </select>
+                            </div>
+                             <div class="form-group-split">
+                                <div class="form-group">
+                                    <label for="tank-size">Tank Size (Gallons)</label>
+                                    <select id="tank-size" name="tank-size" required>
+                                        <!-- Will be recommended by JS but overridable -->
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="tank-material">Tank Material</label>
+                                    <select id="tank-material" name="tank-material" required>
+                                        <option value="concrete" selected>Concrete</option><option value="plastic">Plastic</option><option value="fiberglass">Fiberglass</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </fieldset>
                     </div>
 
-                    <!-- Dynamic Question Group for REPAIR -->
+                    <!-- === Dynamic Question Group for REPAIR === -->
                     <div id="repair-questions" class="hidden">
-                        <div class="form-block">
-                            <label class="form-label-bold">Select Required Repairs</label>
-                            <p class="form-hint">Check all that apply. Costs are for standard replacements.</p>
-                            <div class="form-group-checkbox"><input type="checkbox" id="repair-lid" name="repair-item" value="lid"><label for="repair-lid">Tank Lid Replacement</label></div>
-                            <div class="form-group-checkbox"><input type="checkbox" id="repair-baffle" name="repair-item" value="baffle"><label for="repair-baffle">Baffle Repair / Replacement</label></div>
-                            <div class="form-group-checkbox"><input type="checkbox" id="repair-pump" name="repair-item" value="pump"><label for="repair-pump">Effluent Pump Replacement</label></div>
-                            <div class="form-group-checkbox"><input type="checkbox" id="repair-dbox" name="repair-item" value="dbox"><label for="repair-dbox">Distribution Box (D-Box) Replacement</label></div>
-                        </div>
+                        <fieldset class="form-block">
+                            <legend>Select Required Repairs</legend>
+                             <p class="form-hint">Check all that apply. Estimates are for standard replacements.</p>
+                            <div id="repair-options-container">
+                                <!-- Checkboxes will be dynamically generated by JS from JSON data -->
+                            </div>
+                        </fieldset>
                     </div>
                     
-                    <!-- Dynamic Question Group for MAINTENANCE -->
+                    <!-- === Dynamic Question Group for MAINTENANCE === -->
                     <div id="maintenance-questions" class="hidden">
-                         <div class="form-block">
-                            <label for="tank-size" class="form-label-bold">Septic Tank Size</label>
-                            <p class="form-hint">If unsure, 1000-1250 gallons is typical for a 3-4 bedroom home.</p>
-                            <select id="tank-size" name="tank-size" required>
-                                <option value="1000" selected>1000 Gallons</option>
-                                <option value="1250">1250 Gallons</option>
-                                <option value="1500">1500 Gallons</option>
-                            </select>
-                        </div>
+                         <fieldset class="form-block">
+                            <legend>Service Details</legend>
+                            <div class="form-group">
+                                <label for="maint-tank-size">Tank Size for Pumping</label>
+                                <p class="form-hint">If unsure, 1000-1250 gallons is typical for a 3-4 bedroom home.</p>
+                                <select id="maint-tank-size" name="maint-tank-size" required>
+                                    <option value="1000" selected>1000 Gallons</option><option value="1250">1250 Gallons</option><option value="1500">1500 Gallons</option><option value="1500+">Over 1500 Gallons</option>
+                                </select>
+                            </div>
+                         </fieldset>
                     </div>
                     
                     <div class="panel-navigation">
@@ -155,23 +171,32 @@
                 <div id="results-placeholder">
                     <div class="placeholder-content">
                         <h3>Your Quote Will Appear Here</h3>
-                        <p>Complete the steps on the left to generate your detailed cost estimate.</p>
+                        <p>Complete the steps on the left to generate your hyper-detailed cost estimate.</p>
                     </div>
                 </div>
                 <div id="results-output" class="hidden">
+                    <div id="system-info-box" class="hidden">
+                        <h4 id="system-info-title">System Information</h4>
+                        <p id="system-info-description"></p>
+                    </div>
                     <h3 class="sidebar-title" id="results-summary-text">Estimate for New Installation</h3>
                     <h2 class="price-range" id="results-range">$0 - $0</h2>
                     <div class="breakdown-section">
-                        <h4>Itemized Cost Breakdown</h4><div id="results-breakdown"></div>
+                        <h4>Hyper-Detailed Cost Breakdown</h4>
+                        <div id="results-breakdown" class="stagger-children">
+                            <!-- Itemized breakdown will be inserted here -->
+                        </div>
                     </div>
                     <div class="notes-section">
-                         <h4>Expert Notes</h4><div id="results-notes"></div>
+                         <h4>Expert Notes</h4>
+                         <div id="results-notes">
+                            <!-- Expert notes will be inserted here -->
+                         </div>
                     </div>
                     <button type="button" id="start-over-btn" class="button secondary-button full-width">Start New Estimate</button>
                 </div>
             </div>
         </div>
     </div>
-
 </body>
 </html>
