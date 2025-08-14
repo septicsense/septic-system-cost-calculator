@@ -122,10 +122,12 @@
   },
   "repair": {
     "pump_replacement": { "name": "Effluent Pump Replacement", "min": 900, "max": 2500 },
+    "alarm_float_replacement": { "name": "Pump Alarm / Float Switch Replacement", "min": 300, "max": 750 },
     "baffle_repair": { "name": "Inlet/Outlet Baffle Repair", "min": 350, "max": 900 },
     "distribution_box": { "name": "Distribution Box Replacement", "min": 800, "max": 2000 },
     "pipe_repair": { "name": "Cracked Pipe Repair (Tank to D-Box)", "min": 1000, "max": 3000 },
-    "lid_replacement": { "name": "Tank Lid/Riser Replacement", "min": 400, "max": 1000 }
+    "lid_replacement": { "name": "Tank Lid/Riser Replacement", "min": 400, "max": 1000 },
+    "drainfield_jetting": { "name": "Drainfield Hydro-Jetting", "min": 1000, "max": 2500 }
   },
   "maintenance": {
     "pumping": { "name": "Routine Tank Pumping", "min": 300, "max": 700 },
