@@ -13,7 +13,7 @@
     
     <!-- Stylesheets -->
     <link rel="stylesheet" href="assets/css/styles.css">
-    <link rel="stylesheet" href="assets/css/animations.css"> <!-- Animation file is now linked -->
+    <link rel="stylesheet" href="assets/css/animations.css"> <!-- Animation file is correctly linked -->
     
     <!-- Deferred JavaScript for performance -->
     <script src="assets/js/script.js" defer></script>
@@ -29,7 +29,6 @@
                 <p>Follow the steps to generate a hyper-detailed cost profile.</p>
             </div>
 
-            <!-- The Stepper Navigation -->
             <div class="stepper fade-in-up" style="animation-delay: 0.1s;">
                 <div class="step active" id="step-1"><div class="step-number">1</div><div class="step-label">Work Type</div></div>
                 <div class="step" id="step-2"><div class="step-number">2</div><div class="step-label">Details</div></div>
@@ -57,13 +56,15 @@
                 <div class="form-panel" id="panel-2">
                     <h3 class="panel-title" id="panel-2-title">Please provide the details.</h3>
                     
-                    <!-- Shared Question: Region (Used by all modes) -->
+                    <!-- =============================================================== -->
+                    <!-- === LOCATION SELECTOR (Used by all calculation modes) === -->
+                    <!-- =============================================================== -->
                     <fieldset class="form-block">
                         <label for="region" class="form-label-bold">Location</label>
                         <p class="form-hint">Adjusts for local labor and material costs, the biggest factor in your final price.</p>
                         <select id="region" name="region" required>
                             <option value="" disabled selected>Select your area type...</option>
-                            <!-- Options will be populated from JSON -->
+                            <!-- Options for this will be populated from your regional_cost_data.json file -->
                         </select>
                     </fieldset>
 
@@ -99,7 +100,6 @@
                             <legend>Site & System Specifications</legend>
                             <div class="form-group">
                                  <label for="soil-type">Site & Soil Conditions</label>
-                                 <p class="form-hint">This is the critical factor that determines which system types are physically possible.</p>
                                  <select id="soil-type" name="soil-type" required>
                                     <option value="" disabled selected>Select your soil type...</option>
                                     <option value="good">Good (Flat, deep, well-draining soil)</option>
@@ -110,16 +110,19 @@
                             </div>
                             <div class="form-group">
                                 <label for="system-type">System Type</label>
-                                <p class="form-hint">Options are filtered based on your site conditions. Descriptions will appear on the right.</p>
+                                <p class="form-hint">Options are filtered by site conditions. An info box will appear on the right.</p>
                                 <select id="system-type" name="system-type" required>
                                     <option value="" disabled selected>Select soil type first...</option>
                                 </select>
                             </div>
+                            <!-- =================================================== -->
+                            <!-- === TANK SIZE SELECTOR (For Installation) === -->
+                            <!-- =================================================== -->
                              <div class="form-group-split">
                                 <div class="form-group">
                                     <label for="tank-size">Tank Size (Gallons)</label>
                                     <select id="tank-size" name="tank-size" required>
-                                        <!-- Will be recommended by JS but overridable -->
+                                        <!-- The script will recommend a size based on household, but you can override it here. -->
                                     </select>
                                 </div>
                                 <div class="form-group">
@@ -133,34 +136,12 @@
                     </div>
 
                     <!-- === Dynamic Question Group for REPAIR === -->
-                    <div id="repair-questions" class="hidden">
-                        <fieldset class="form-block">
-                            <legend>Select Required Repairs</legend>
-                             <p class="form-hint">Check all that apply. Estimates are for standard replacements.</p>
-                            <div id="repair-options-container">
-                                <!-- Checkboxes will be dynamically generated by JS from JSON data -->
-                            </div>
-                        </fieldset>
-                    </div>
+                    <div id="repair-questions" class="hidden"><fieldset class="form-block"><legend>Select Required Repairs</legend><div id="repair-options-container"></div></fieldset></div>
                     
                     <!-- === Dynamic Question Group for MAINTENANCE === -->
-                    <div id="maintenance-questions" class="hidden">
-                         <fieldset class="form-block">
-                            <legend>Service Details</legend>
-                            <div class="form-group">
-                                <label for="maint-tank-size">Tank Size for Pumping</label>
-                                <p class="form-hint">If unsure, 1000-1250 gallons is typical for a 3-4 bedroom home.</p>
-                                <select id="maint-tank-size" name="maint-tank-size" required>
-                                    <option value="1000" selected>1000 Gallons</option><option value="1250">1250 Gallons</option><option value="1500">1500 Gallons</option><option value="1500+">Over 1500 Gallons</option>
-                                </select>
-                            </div>
-                         </fieldset>
-                    </div>
+                    <div id="maintenance-questions" class="hidden"><fieldset class="form-block"><legend>Service Details</legend><div class="form-group"><label for="maint-tank-size">Tank Size for Pumping</label><select id="maint-tank-size" name="maint-tank-size" required><option value="1000" selected>1000 Gallons</option><option value="1250">1250 Gallons</option><option value="1500">1500 Gallons</option><option value="1500+">Over 1500 Gallons</option></select></div></fieldset></div>
                     
-                    <div class="panel-navigation">
-                        <button type="button" class="button secondary-button" id="back-btn-2">← Back</button>
-                        <button type="submit" class="button" id="calculate-btn">Generate Quote →</button>
-                    </div>
+                    <div class="panel-navigation"><button type="button" class="button secondary-button" id="back-btn-2">← Back</button><button type="submit" class="button" id="calculate-btn">Generate Quote →</button></div>
                 </div>
             </form>
         </div>
@@ -168,31 +149,13 @@
         <!-- Right Side: The Results Display -->
         <div class="app-sidebar">
             <div id="results-container">
-                <div id="results-placeholder">
-                    <div class="placeholder-content">
-                        <h3>Your Quote Will Appear Here</h3>
-                        <p>Complete the steps on the left to generate your hyper-detailed cost estimate.</p>
-                    </div>
-                </div>
+                <div id="results-placeholder"><div class="placeholder-content"><h3>Your Quote Will Appear Here</h3><p>Complete the steps on the left to generate your hyper-detailed cost estimate.</p></div></div>
                 <div id="results-output" class="hidden">
-                    <div id="system-info-box" class="hidden">
-                        <h4 id="system-info-title">System Information</h4>
-                        <p id="system-info-description"></p>
-                    </div>
+                    <div id="system-info-box" class="hidden fade-in"><h4 id="system-info-title">System Information</h4><p id="system-info-description"></p></div>
                     <h3 class="sidebar-title" id="results-summary-text">Estimate for New Installation</h3>
                     <h2 class="price-range" id="results-range">$0 - $0</h2>
-                    <div class="breakdown-section">
-                        <h4>Hyper-Detailed Cost Breakdown</h4>
-                        <div id="results-breakdown" class="stagger-children">
-                            <!-- Itemized breakdown will be inserted here -->
-                        </div>
-                    </div>
-                    <div class="notes-section">
-                         <h4>Expert Notes</h4>
-                         <div id="results-notes">
-                            <!-- Expert notes will be inserted here -->
-                         </div>
-                    </div>
+                    <div class="breakdown-section"><h4>Hyper-Detailed Cost Breakdown</h4><div id="results-breakdown" class="stagger-children"></div></div>
+                    <div class="notes-section"><h4>Expert Notes</h4><div id="results-notes"></div></div>
                     <button type="button" id="start-over-btn" class="button secondary-button full-width">Start New Estimate</button>
                 </div>
             </div>
