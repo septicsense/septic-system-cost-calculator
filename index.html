@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Professional Septic System Cost Calculator</title>
-    <meta name="description" content="Get an accurate, detailed cost estimate for your septic system installation, repair, or maintenance. Covers all US states and system types.">
+    <meta name="description" content="Get an expert-level, itemized cost estimate for your septic system installation, repair, or maintenance based on real-world conditions.">
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,115 +13,178 @@
     
     <!-- Stylesheets -->
     <link rel="stylesheet" href="assets/css/styles.css">
-    <link rel="stylesheet" href="assets/css/animations.css">
-
+    
     <!-- Deferred JavaScript for performance -->
-    <script src="node_modules/jspdf/dist/jspdf.umd.min.js" defer></script>
-    <script src="assets/js/calculator.js" defer></script>
-    <script src="assets/js/main.js" defer></script>
+    <script src="assets/js/script.js" defer></script>
+
 </head>
 <body>
 
     <header class="main-header">
         <div class="container">
-            <h1 class="fade-in-down">Septic System Cost Calculator</h1>
-            <p class="fade-in-down" style="animation-delay: 0.2s;">Your professional open-source tool for accurate, detailed septic system estimates.</p>
+            <h1>Septic System Cost Estimator</h1>
+            <p>An expert tool for transparent, real-world septic system cost analysis.</p>
         </div>
     </header>
 
     <main>
         <div class="container">
-            <div id="calculator-container" class="calculator-container fade-in-up" style="animation-delay: 0.4s;">
+            <div id="calculator-container" class="calculator-container">
                 
                 <div class="calculator-layout">
 
                     <!-- Left Column: The Form Steps -->
                     <div class="calculator-main">
-                        <form id="septic-calculator-form" class="septic-calculator-form" novalidate>
+                        
+                        <!-- Step 1: Mode Selection (This is always visible first) -->
+                        <div id="mode-selection-section">
+                            <h2 class="step-title">What do you need an estimate for today?</h2>
+                            <div class="mode-selection-buttons">
+                                <button type="button" class="button mode-button" data-mode="installation">
+                                    <span class="mode-title">New System Installation</span>
+                                    <span class="mode-description">Get a full, itemized quote for a brand new system.</span>
+                                </button>
+                                <button type="button" class="button mode-button" data-mode="repair">
+                                    <span class="mode-title">System Repair</span>
+                                    <span class="mode-description">Estimate the cost for common septic system repairs.</span>
+                                </button>
+                                <button type="button" class="button mode-button" data-mode="maintenance">
+                                    <span class="mode-title">Routine Maintenance</span>
+                                    <span class="mode-description">Calculate costs for pumping and inspections.</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- The Form container for all modes -->
+                        <form id="septic-calculator-form" class="hidden">
                             
-                            <!-- Step 1: Type of Work -->
-                            <div class="form-step active" data-step="1">
-                                <h2 class="step-title">What type of work do you need?</h2>
-                                <p class="step-subtitle">This determines how we calculate your estimate.</p>
-                                <div class="form-group">
-                                    <label for="calculation-type">Select Work Type</label>
-                                    <select id="calculation-type" name="calculationType" required>
-                                        <option value="installation" selected>New System Installation</option>
-                                        <option value="repair">System Repair</option>
-                                        <option value="maintenance">Routine Maintenance</option>
-                                    </select>
-                                </div>
-                                <div class="form-navigation">
-                                    <button type="button" id="next-btn-1" class="button">Next →</button>
-                                </div>
+                            <!-- ====== NEW INSTALLATION SECTION ====== -->
+                            <div id="installation-section" class="form-mode-section hidden">
+                                <h2 class="step-title">New Installation Profile</h2>
+                                <fieldset>
+                                    <legend>Location & Site</legend>
+                                    <div class="form-group">
+                                        <label for="install-region">Regional Cost Area</label>
+                                        <select id="install-region" name="install-region" required>
+                                            <option value="" disabled selected>Select your area type...</option>
+                                            <option value="rural">Rural / Low Cost of Living Area</option>
+                                            <option value="suburban">Suburban / Average Cost of Living Area</option>
+                                            <option value="urban">Urban / High Cost of Living Area</option>
+                                            <option value="metro">Major Metro / Very High Cost of Living Area</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="soil-type">Soil & Lot Conditions</label>
+                                        <select id="soil-type" name="soil-type" required>
+                                            <option value="" disabled selected>Select your soil type...</option>
+                                            <option value="good">Good (Flat, well-draining loam/sand)</option>
+                                            <option value="average">Average (Slight slope, some clay)</option>
+                                            <option value="poor">Poor (Heavy clay, steep, rocky)</option>
+                                            <option value="vpoor">Very Poor (Fails perc test, small lot, bedrock)</option>
+                                        </select>
+                                    </div>
+                                </fieldset>
+                                
+                                <fieldset>
+                                    <legend>Household & System</legend>
+                                    <div class="form-group">
+                                        <label for="bedrooms">Number of Bedrooms in Home</label>
+                                        <select id="bedrooms" name="bedrooms" required>
+                                            <option value="1-2">1-2 Bedrooms</option>
+                                            <option value="3" selected>3 Bedrooms</option>
+                                            <option value="4">4 Bedrooms</option>
+                                            <option value="5">5 Bedrooms</option>
+                                            <option value="6+">6+ Bedrooms</option>
+                                        </select>
+                                    </div>
+                                     <div class="form-group">
+                                        <label for="system-type">System Type</label>
+                                        <select id="system-type" name="system-type" required>
+                                            <!-- Options will be populated by JavaScript based on soil type -->
+                                            <option value="" disabled selected>Select soil type first...</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="tank-material">Tank Material</label>
+                                        <select id="tank-material" name="tank-material" required>
+                                            <option value="concrete" selected>Concrete</option>
+                                            <option value="plastic">Plastic / Polyethylene</option>
+                                            <option value="fiberglass">Fiberglass</option>
+                                        </select>
+                                    </div>
+                                </fieldset>
                             </div>
 
-                            <!-- Step 2: Location -->
-                            <div class="form-step" data-step="2">
-                                <h2 class="step-title">Where is your property?</h2>
-                                <p class="step-subtitle">Costs for labor and permits vary greatly by location.</p>
-                                <div class="form-group">
-                                    <label for="state">U.S. State</label>
-                                    <select id="state" name="state" required></select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="zip-code">5-Digit ZIP Code</label>
-                                    <input type="text" id="zip-code" name="zipCode" inputmode="numeric" pattern="[0-9]{5}" placeholder="e.g., 90210" required>
-                                </div>
-                                <div class="form-navigation">
-                                    <button type="button" id="prev-btn-2" class="button secondary-button">← Previous</button>
-                                    <button type="button" id="next-btn-2" class="button">Next →</button>
-                                </div>
+                            <!-- ====== REPAIR SECTION ====== -->
+                            <div id="repair-section" class="form-mode-section hidden">
+                                <h2 class="step-title">Repair Cost Estimate</h2>
+                                <fieldset>
+                                    <legend>Location</legend>
+                                    <div class="form-group">
+                                        <label for="repair-region">Regional Cost Area</label>
+                                        <select id="repair-region" name="repair-region" required>
+                                            <option value="" disabled selected>Select your area type...</option>
+                                            <option value="rural">Rural / Low Cost of Living Area</option>
+                                            <option value="suburban">Suburban / Average Cost of Living Area</option>
+                                            <option value="urban">Urban / High Cost of Living Area</option>
+                                            <option value="metro">Major Metro / Very High Cost of Living Area</option>
+                                        </select>
+                                    </div>
+                                </fieldset>
+                                <fieldset>
+                                    <legend>Select Required Repairs (Check all that apply)</legend>
+                                    <div class="form-group-checkbox">
+                                        <input type="checkbox" id="repair-lid" name="repair" value="lid">
+                                        <label for="repair-lid">Tank Lid Replacement</label>
+                                    </div>
+                                    <div class="form-group-checkbox">
+                                        <input type="checkbox" id="repair-baffle" name="repair" value="baffle">
+                                        <label for="repair-baffle">Baffle Repair / Replacement</label>
+                                    </div>
+                                    <div class="form-group-checkbox">
+                                        <input type="checkbox" id="repair-pump" name="repair" value="pump">
+                                        <label for="repair-pump">Effluent Pump Replacement</label>
+                                    </div>
+                                    <div class="form-group-checkbox">
+                                        <input type="checkbox" id="repair-dbox" name="repair" value="dbox">
+                                        <label for="repair-dbox">Distribution Box (D-Box) Replacement</label>
+                                    </div>
+                                </fieldset>
                             </div>
 
-                            <!-- Step 3: Property & Usage (Installation only) -->
-                            <div class="form-step" data-step="3">
-                                <h2 class="step-title">Tell us about your household.</h2>
-                                <p class="step-subtitle">System size depends on the number of occupants and water use.</p>
-                                <div class="form-group">
-                                    <label for="household-size">People in Household</label>
-                                    <select id="household-size" name="householdSize" required>
-                                        <option value="1-2" selected>1-2 People (Low Usage)</option>
-                                        <option value="3-4">3-4 People (Average Usage)</option>
-                                        <option value="5-6">5-6 People (High Usage)</option>
-                                        <option value="7+">7+ People (Very High Usage)</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="water-usage">Daily Water Use Habits</label>
-                                    <select id="water-usage" name="waterUsage" required>
-                                        <option value="low">Conservative</option>
-                                        <option value="average" selected>Average</option>
-                                        <option value="high">High</option>
-                                    </select>
-                                </div>
-                                <div class="form-navigation">
-                                    <button type="button" id="prev-btn-3" class="button secondary-button">← Previous</button>
-                                    <button type="button" id="next-btn-3" class="button">Next →</button>
-                                </div>
+                            <!-- ====== MAINTENANCE SECTION ====== -->
+                            <div id="maintenance-section" class="form-mode-section hidden">
+                                 <h2 class="step-title">Maintenance Cost Estimate</h2>
+                                <fieldset>
+                                    <legend>Location</legend>
+                                    <div class="form-group">
+                                        <label for="maint-region">Regional Cost Area</label>
+                                        <select id="maint-region" name="maint-region" required>
+                                            <option value="" disabled selected>Select your area type...</option>
+                                            <option value="rural">Rural / Low Cost of Living Area</option>
+                                            <option value="suburban">Suburban / Average Cost of Living Area</option>
+                                            <option value="urban">Urban / High Cost of Living Area</option>
+                                            <option value="metro">Major Metro / Very High Cost of Living Area</option>
+                                        </select>
+                                    </div>
+                                </fieldset>
+                                <fieldset>
+                                    <legend>Service Details</legend>
+                                    <div class="form-group">
+                                        <label for="tank-size">Septic Tank Size</label>
+                                        <select id="tank-size" name="tank-size" required>
+                                            <option value="1000" selected>1000 Gallons</option>
+                                            <option value="1250">1250 Gallons</option>
+                                            <option value="1500">1500 Gallons</option>
+                                        </select>
+                                    </div>
+                                </fieldset>
                             </div>
 
-                            <!-- Step 4: Site Conditions & System -->
-                            <div class="form-step" data-step="4">
-                                <h2 class="step-title">What are the site conditions?</h2>
-                                <p class="step-subtitle">This determines the type and complexity of the system.</p>
-                                <div class="form-group">
-                                    <label for="soil-type">Predominant Soil Type</label>
-                                    <select id="soil-type" name="soilType" required>
-                                         <option value="ideal" selected>Good (Loam, Sandy Loam)</option>
-                                         <option value="moderate">Average (Silt, Clay Loam)</option>
-                                         <option value="difficult">Poor (Heavy Clay, Rocky)</option>
-                                         <option value="special">Problematic (High Water Table, Bedrock)</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="system-type" id="system-type-label">System or Job Type</label>
-                                    <select id="system-type" name="systemType" required></select>
-                                </div>
-                                <div class="form-navigation">
-                                    <button type="button" id="prev-btn-4" class="button secondary-button">← Previous</button>
-                                    <button type="submit" id="calculate-btn" class="button">Calculate Estimate</button>
-                                </div>
+                            <!-- Universal Form Navigation -->
+                            <div class="form-navigation">
+                                <button type="button" id="back-to-mode-selection" class="button secondary-button">← Change Work Type</button>
+                                <button type="submit" id="calculate-btn" class="button">Calculate Estimate</button>
                             </div>
 
                         </form>
@@ -131,11 +194,21 @@
                     <div class="calculator-sidebar">
                         <div id="results-container">
                              <h3 class="sidebar-title">Your Estimate</h3>
-                             <p class="sidebar-placeholder">Complete the steps to see your detailed cost breakdown.</p>
-                             <div id="results-output"></div>
-                             <div id="pdf-download-area" style="display: none;">
-                                <button type="button" id="download-pdf-btn" class="button full-width">Download Quote as PDF</button>
-                            </div>
+                             <div id="results-placeholder">
+                                <p>Complete the form on the left to generate your detailed, itemized cost estimate.</p>
+                             </div>
+                             <div id="results-output" class="hidden">
+                                <div id="results-header">
+                                    <p id="results-summary-text">Estimate for a New Installation</p>
+                                    <h2 id="results-range">$0 - $0</h2>
+                                </div>
+                                <div id="results-breakdown">
+                                    <!-- Itemized breakdown will be inserted here by JavaScript -->
+                                </div>
+                                <div id="results-notes">
+                                    <!-- Expert notes will be inserted here by JavaScript -->
+                                </div>
+                             </div>
                         </div>
                     </div>
                 </div>
