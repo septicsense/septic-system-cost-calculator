@@ -3,12 +3,15 @@
   --primary: #2563eb;
   --primary-dark: #1d4ed8;
   --primary-light: #dbeafe;
-  --secondary: #059669;
-  --background: #f1f5f9; /* Lighter gray background */
-  --surface: #ffffff;
+  --secondary: #64748b; /* A more neutral secondary for buttons */
+  --secondary-dark: #475569;
+  --background: #f1f5f9; /* Light gray page background */
+  --surface: #ffffff; /* White card/panel background */
   --text-primary: #1e293b;
   --text-secondary: #64748b;
+  --text-on-primary: #ffffff;
   --border-color: #e2e8f0;
+  --border-color-active: #a5b4fc;
   --error: #dc2626;
   
   --font-primary: 'Inter', sans-serif;
@@ -16,7 +19,7 @@
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --border-radius: 0.75rem; /* Slightly larger radius */
+  --border-radius: 0.75rem;
 }
 
 * {
@@ -32,77 +35,141 @@ body {
   line-height: 1.6;
 }
 
-.container {
-  max-width: 960px; /* Wider container for the new layout */
-  margin: 0 auto;
-  padding: 0 1rem;
-}
-
-/* === HEADER & FOOTER === */
-.main-header {
-  text-align: center;
-  padding: 2.5rem 0;
-  border-bottom: 1px solid var(--border-color);
-  background-color: var(--surface);
-}
-.main-header h1 { color: var(--text-primary); font-size: 2.25rem; }
-.main-header p { color: var(--text-secondary); font-size: 1.1rem; max-width: 600px; margin: 0.5rem auto 0; }
-.main-footer { text-align: center; padding: 2rem 0; color: var(--text-secondary); }
-.main-footer a { color: var(--primary); text-decoration: none; }
-.main-footer a:hover { text-decoration: underline; }
-
-/* === CALCULATOR CONTAINER & LAYOUT === */
-.calculator-container {
-  background-color: var(--surface);
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-lg);
-  margin: 2rem 0;
-  overflow: hidden;
-}
-
-/* New 2-column layout using modern CSS Grid */
-.calculator-layout {
+/* === MODERN APP LAYOUT === */
+.app-layout {
   display: grid;
-  grid-template-columns: 1fr; /* Default to 1 column on mobile */
+  grid-template-columns: 1fr; /* Single column on mobile */
+  min-height: 100vh;
 }
 
-/* Main content area (the form) */
-.calculator-main {
-  padding: 2rem 2.5rem;
+.app-main {
+  padding: 2rem 1.5rem;
 }
 
-/* Sidebar area (the results) */
-.calculator-sidebar {
-  background-color: #f8fafc; /* Slightly different background */
-  padding: 2rem 2.5rem;
-  border-left: 1px solid var(--border-color);
+.app-sidebar {
+  background-color: #f8fafc;
+  padding: 2rem 1.5rem;
+  border-top: 1px solid var(--border-color);
 }
 
-.sidebar-title {
+/* === HEADER & STEPPER === */
+.app-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.app-header h2 {
   font-family: var(--font-headings);
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
+  font-size: 1.75rem;
+}
+.app-header p {
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+.stepper {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 auto 2.5rem auto;
+  max-width: 500px;
+  position: relative;
+}
+.stepper::before { /* The line behind the steps */
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--border-color);
+  transform: translateY(-50%);
+  z-index: 1;
+}
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+  background-color: var(--background);
+  padding: 0 0.5rem;
+}
+.step-number {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background-color: var(--surface);
+  border: 2px solid var(--border-color);
+  color: var(--text-secondary);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-family: var(--font-headings);
+  transition: all 0.3s ease;
+}
+.step-label {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: all 0.3s ease;
+}
+.step.active .step-number {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  color: var(--text-on-primary);
+}
+.step.active .step-label {
   color: var(--text-primary);
 }
 
-.sidebar-placeholder {
-  color: var(--text-secondary);
-  text-align: center;
-  padding: 3rem 1rem;
-  border: 2px dashed var(--border-color);
-  border-radius: var(--border-radius);
-  background-color: var(--surface);
+/* === FORM PANELS & CARDS === */
+.form-panel {
+  display: none; /* Hidden by default */
+  animation: fadeIn 0.5s ease;
+}
+.form-panel.active {
+  display: block; /* Shown by JS */
 }
 
-/* === FORM STYLING === */
-.form-step { display: none; }
-.form-step.active { display: block; }
-.step-title { font-family: var(--font-headings); margin-bottom: 0.25rem; color: var(--text-primary); }
-.step-subtitle { margin-bottom: 2rem; font-size: 1rem; color: var(--text-secondary); }
-.form-group { margin-bottom: 1.5rem; }
-.form-group label { display: block; font-weight: 600; margin-bottom: 0.5rem; }
+.panel-title {
+  font-family: var(--font-headings);
+  font-size: 1.25rem;
+  text-align: center;
+  margin-bottom: 2rem;
+}
 
-.form-group input, .form-group select {
+.card-selection-container {
+  display: grid;
+  gap: 1rem;
+}
+.selection-card {
+  padding: 1.5rem;
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: all 0.2s ease-out;
+  background-color: var(--surface);
+}
+.selection-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-color-active);
+}
+.selection-card.selected {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+  transform: translateY(-4px);
+}
+.selection-card h4 { font-family: var(--font-headings); margin-bottom: 0.25rem; }
+.selection-card p { font-size: 0.9rem; color: var(--text-secondary); }
+
+/* === GENERAL FORM STYLING === */
+.form-block { margin-bottom: 1.5rem; }
+.form-label-bold { font-weight: 600; display: block; margin-bottom: 0.25rem; }
+.form-hint { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem; }
+
+select, input[type="text"], input[type="checkbox"] {
   width: 100%;
   padding: 0.75rem 1rem;
   border: 1px solid var(--border-color);
@@ -112,31 +179,25 @@ body {
   background-color: var(--surface);
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
-.form-group input:focus, .form-group select:focus {
+select:focus, input:focus {
   outline: none;
   border-color: var(--primary);
   box-shadow: 0 0 0 3px var(--primary-light);
 }
 
-/* === BUTTON STYLING === */
-.form-navigation {
+.panel-navigation {
+  margin-top: 2rem;
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-top: 2.5rem;
-  border-top: 1px solid var(--border-color);
-  padding-top: 1.5rem;
-}
-/* When a step only has a "Next" button */
-.form-navigation:has(:last-child:not(:first-child)) {
-    justify-content: flex-end;
 }
 
+/* === BUTTON STYLING === */
 .button {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
+  padding: 0.85rem 1.5rem;
   border: none;
   border-radius: 0.5rem;
   font-family: var(--font-headings);
@@ -155,64 +216,90 @@ body {
 }
 
 .button.secondary-button {
-  background-color: #e2e8f0;
-  color: var(--text-primary);
+  background-color: var(--secondary);
+  color: var(--text-on-primary);
 }
 .button.secondary-button:hover {
-  background-color: #cbd5e1;
+  background-color: var(--secondary-dark);
 }
 
 .button.full-width {
   width: 100%;
-  justify-content: center;
 }
 
-.button-icon {
-  width: 1.25rem;
-  height: 1.25rem;
+/* === RESULTS SIDEBAR === */
+.placeholder-content {
+  text-align: center;
+  padding: 3rem 1rem;
 }
-
-.pdf-download-area {
-  margin-top: 1.5rem;
+.price-range {
+  font-family: var(--font-headings);
+  font-size: 2.5rem;
+  color: var(--primary-dark);
+  text-align: center;
+  margin-bottom: 1.5rem;
 }
-
-/* === RESULTS BREAKDOWN === */
-.results-breakdown {
-  margin-top: 1.5rem;
+.sidebar-title {
+  text-align: center;
+  color: var(--text-secondary);
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+.breakdown-section, .notes-section {
+  margin-top: 2rem;
+}
+.breakdown-section h4, .notes-section h4 {
+  font-family: var(--font-headings);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
 }
 .breakdown-item {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid var(--border-color);
-  font-size: 0.95rem;
+  padding: 0.5rem 0;
 }
 .breakdown-item .label { color: var(--text-secondary); }
-.breakdown-item .value { font-weight: 600; color: var(--text-primary); }
-
-.results-total {
-  margin-top: 1.5rem;
-  padding: 1rem;
+.breakdown-item .value { font-weight: 600; }
+.notes-section p {
+  font-size: 0.9rem;
   background-color: var(--primary-light);
-  border-radius: var(--border-radius);
-  text-align: center;
-}
-.results-total .label {
-  font-weight: 600;
   color: var(--primary-dark);
+  padding: 1rem;
+  border-radius: 0.5rem;
 }
-.results-total .value {
-  font-family: var(--font-headings);
-  font-size: 2.25rem;
-  color: var(--primary-dark);
-  margin-top: 0.25rem;
+#start-over-btn {
+  margin-top: 2rem;
 }
 
-/* === RESPONSIVE DESIGN === */
-/* This is where the magic happens for the two-column layout */
-@media (min-width: 768px) {
-  .calculator-layout {
-    grid-template-columns: 55% 45%; /* 2 columns on tablets and wider */
+/* === HELPER & ANIMATION CLASSES === */
+.hidden {
+  display: none !important;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* === RESPONSIVE DESIGN (The Magic) === */
+@media (min-width: 992px) {
+  .app-layout {
+    grid-template-columns: minmax(0, 600px) 1fr; /* Two columns on desktop */
+  }
+  .app-main {
+    padding: 3rem;
+  }
+  .app-sidebar {
+    padding: 3rem;
+    border-top: none;
+    border-left: 1px solid var(--border-color);
+    /* Make the sidebar sticky for long forms */
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  .card-selection-container {
+    grid-template-columns: repeat(3, 1fr); /* 3 cards side-by-side */
   }
 }
