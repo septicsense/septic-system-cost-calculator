@@ -68,7 +68,15 @@ select:focus, input:focus { outline: none; border-color: var(--brand-accent); bo
 /* === CHECKBOX ALIGNMENT FIX === */
 .form-group-checkbox { display: flex; align-items: center; padding: 0.75rem; border-radius: var(--border-radius); transition: background-color 0.2s ease; }
 .form-group-checkbox:hover { background-color: var(--surface-secondary); }
-.form-group-checkbox input[type="checkbox"] { width: 1.25em; height: 1.25em; margin-right: 0.75rem; flex-shrink: 0; }
+.form-group-checkbox input[type="checkbox"] {
+    width: 1.25em;
+    height: 1.25em;
+    /* Resetting default browser margins to ensure proper flex alignment */
+    margin: 0 0.75rem 0 0;
+    flex-shrink: 0;
+    /* Modern styling for the checkbox itself */
+    accent-color: var(--brand-accent);
+}
 .form-group-checkbox label { margin-bottom: 0; font-weight: 500; cursor: pointer; }
 
 /* === CARDS & BUTTONS === */
