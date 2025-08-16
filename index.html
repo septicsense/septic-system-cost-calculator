@@ -1,128 +1,779 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Septic System Estimator | Professional Analysis Tool</title>
-    <meta name="description" content="The definitive estimator for septic system installation, repair, and maintenance. Get a hyper-detailed, real-world cost analysis.">
-    
-    <!-- Google Fonts: New Professional Font Pairing -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
-    
-    <!-- Stylesheets -->
-    <link rel="stylesheet" href="assets/css/styles.css">
-    <link rel="stylesheet" href="assets/css/animations.css">
-    
-    <!-- PDF Generation Library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <!--
+    SepticPro Estimator — Glass UI Edition (Updated)
+    Improvements:
+      • Dark, readable dropdown menus (no all-white selects)
+      • Custom caret, strong focus ring, better hover/active states
+      • Accessible contrast & keyboard focus
+      • Keeps print/PDF styles crisp (no transparency issues)
+  -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SepticPro | Professional Septic System Cost Estimator</title>
 
-    <script src="assets/js/script.js" defer></script>
+  <!-- Fonts & Tailwind -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#0D2C54',
+            primaryDark: '#081a32',
+            accent: '#00A391',
+            accent2: '#10B981',
+            ink: '#0f172a',
+            glass: 'rgba(255,255,255,0.12)',
+            glassBorder: 'rgba(255,255,255,0.25)',
+          },
+          fontFamily: {
+            display: ['Plus Jakarta Sans','Inter','system-ui', 'sans-serif'],
+            body: ['Inter','system-ui','sans-serif'],
+          },
+          boxShadow: {
+            glass: '0 10px 30px rgba(2, 6, 23, .25)',
+            glow: '0 0 0 8px rgba(16, 185, 129, .12)',
+            ring: '0 0 0 3px rgba(16, 185, 129, .35)',
+          },
+          backdropBlur: { xs: '2px' },
+          animation: {
+            'float-sm': 'float 5s ease-in-out infinite',
+            'pop': 'pop .22s ease-out',
+            'ping-slow': 'ping 2.5s cubic-bezier(0, 0, 0.2, 1) infinite',
+            'slide-up': 'slideUp .35s ease-out forwards',
+          },
+          keyframes: {
+            float: { '0%,100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-6px)' } },
+            pop: { '0%': { transform: 'scale(.98)' }, '100%': { transform: 'scale(1)' } },
+            slideUp: { '0%': { transform: 'translateY(10px)', opacity: 1 }, '100%': { transform: 'translateY(0)', opacity: 1 } }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- html2pdf -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <style>
+    :root {
+      --bg-gradient: radial-gradient(1200px 800px at 10% -10%, rgba(16,185,129,.18), transparent 60%),
+                     radial-gradient(1200px 800px at 110% 10%, rgba(13,44,84,.25), transparent 55%),
+                     linear-gradient(180deg, #070a14 0%, #0b1221 100%);
+      --ui-surface: #0b1221;
+      --ui-surface-2: #0f172a;
+      --ui-border: rgba(255,255,255,.18);
+      --ui-text: #f8fafc;
+      --ui-subtle: rgba(255,255,255,.6);
+      --ring: rgba(16,185,129,.45);
+    }
+    html, body { height: 100%; }
+    body {
+      background: var(--bg-gradient) fixed;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Stepper line */
+    .stepper { counter-reset: step; }
+    .stepper-line {
+      position: absolute; top: 1.25rem; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, rgba(255,255,255,.18), rgba(255,255,255,.05));
+      border-radius: 999px;
+    }
+    .stepper-progress {
+      position: absolute; top: 1.25rem; left: 0; height: 3px;
+      background: linear-gradient(90deg, #10B981, #06B6D4);
+      border-radius: 999px; transition: width .35s ease;
+    }
+
+    /* Glass card */
+    .glass {
+      background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.06));
+      border: 1px solid var(--ui-border);
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    }
+
+    /* Selection rings */
+    .is-selected {
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, .25);
+      border-color: #10B981 !important;
+      background: linear-gradient(180deg, rgba(16,185,129,.12), rgba(255,255,255,.04));
+    }
+
+    /* ========== DARK FORM CONTROLS (fixed dropdowns) ========== */
+    .field {
+      width: 100%;
+      border-radius: 0.75rem;
+      border: 1px solid rgba(255,255,255,.2);
+      background-color: rgba(255,255,255,.06);
+      color: var(--ui-text);
+      padding: 0.75rem 1rem;
+      transition: box-shadow .2s ease, border-color .2s ease, background-color .2s ease;
+      outline: none;
+      color-scheme: dark;             /* tells browsers to render native popups in dark */
+      -webkit-appearance: none; 
+      -moz-appearance: none;
+      appearance: none;
+      /* Custom caret (white) */
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 20 20' fill='white'><path d='M5.5 7.5l4.5 4.5 4.5-4.5' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none'/></svg>");
+      background-repeat: no-repeat;
+      background-position: right .9rem center;
+      background-size: 14px;
+      padding-right: 2.5rem;          /* room for caret */
+    }
+    .field::placeholder { color: rgba(255,255,255,.55); }
+    .field:hover { background-color: rgba(255,255,255,.09); }
+    .field:focus {
+      border-color: var(--ring);
+      box-shadow: var(--ring) 0 0 0 3px;
+    }
+    .field:disabled {
+      opacity: .6; cursor: not-allowed; background-color: rgba(255,255,255,.05);
+    }
+
+    /* Dark popup for options (best-effort; supported in most modern browsers) */
+    select.field option,
+    select.field optgroup {
+      background-color: var(--ui-surface-2);
+      color: var(--ui-text);
+    }
+
+    /* iOS/WebKit extra – keep picker indicators visible on dark bg */
+    input[type="date"].field::-webkit-calendar-picker-indicator,
+    input[type="time"].field::-webkit-calendar-picker-indicator {
+      filter: invert(1);
+    }
+
+    /* Steps show/hide */
+    .step { display: none; }
+    .step.active { display: block; }
+
+    /* PRINT: ensure no fading, white background, remove glass/transparency for crisp PDF */
+    @media print {
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      body { background: #fff !important; }
+      .glass, .bg-white\/5, .bg-white\/10, .bg-white\/20, .backdrop-blur, .backdrop-blur-xs, .backdrop-blur-sm {
+        background: #ffffff !important;
+        border-color: #e5e7eb !important;
+        filter: none !important;
+      }
+      .text-white { color: #111827 !important; }
+      .text-primary, .text-ink { color: #111827 !important; }
+      .shadow, .shadow-lg, .shadow-xl, .shadow-2xl, .shadow-glass { box-shadow: none !important; }
+      .no-print { display: none !important; }
+      .print-bg { background: #ffffff !important; }
+    }
+
+    /* Respect reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; transition: none !important; }
+    }
+
+    /* Subtle card hover */
+    .card-hover:hover { transform: translateY(-2px); transition: transform .2s ease; }
+  </style>
 </head>
-<body>
-    <div class="app-layout">
-        <div class="app-main">
-            <div class="app-header fade-in-up">
-                <h2>Septic System Estimator</h2>
-                <p>Follow the steps to generate a hyper-detailed cost profile.</p>
-            </div>
+<body class="font-body text-white selection:bg-accent/30 selection:text-white">
+  <!-- Decorative background orbs -->
+  <div class="pointer-events-none fixed inset-0 overflow-hidden">
+    <div class="absolute -top-24 -left-16 w-80 h-80 rounded-full bg-emerald-500/20 blur-3xl animate-float-sm"></div>
+    <div class="absolute -bottom-32 -right-24 w-[28rem] h-[28rem] rounded-full bg-cyan-500/20 blur-3xl animate-float-sm" style="animation-delay:1.5s"></div>
+  </div>
 
-            <div class="stepper fade-in-up" style="animation-delay: 0.1s;">
-                <div class="step active" id="step-1"><div class="step-number">1</div><div class="step-label">Work Type</div></div>
-                <div class="step" id="step-2"><div class="step-number">2</div><div class="step-label">Details</div></div>
-                <div class="step" id="step-3"><div class="step-number">3</div><div class="step-label">Quote</div></div>
-            </div>
-
-            <form id="septic-calculator-form">
-                <div class="form-panel active" id="panel-1">
-                    <h3 class="panel-title fade-in-up" style="animation-delay: 0.2s;">What type of work do you need?</h3>
-                    <div class="card-selection-container">
-                        <div class="selection-card fade-in-up" style="animation-delay: 0.3s;" data-work-type="installation"><h4>New System Installation</h4><p>Full, itemized estimate for a brand new system.</p></div>
-                        <div class="selection-card fade-in-up" style="animation-delay: 0.4s;" data-work-type="repair"><h4>System Repair</h4><p>Estimate costs for common component repairs.</p></div>
-                        <div class="selection-card fade-in-up" style="animation-delay: 0.5s;" data-work-type="maintenance"><h4>Routine Maintenance</h4><p>Calculate costs for pumping and inspections.</p></div>
-                    </div>
-                </div>
-
-                <div class="form-panel" id="panel-2">
-                    <h3 class="panel-title" id="panel-2-title">Please provide the details.</h3>
-                    
-                    <fieldset class="form-block">
-                        <legend>Location</legend>
-                        <p class="form-hint">This provides the baseline for labor and material costs.</p>
-                        <div class="form-group-split">
-                            <div class="form-group">
-                                <label for="state">U.S. State</label>
-                                <select id="state" name="state" required></select>
-                            </div>
-                            <div class="form-group">
-                                <label for="area-type">Area Type</label>
-                                <select id="area-type" name="area-type" required>
-                                    <option value="suburban" selected>Suburban</option>
-                                    <option value="urban">Urban / City</option>
-                                    <option value="rural">Rural / Countryside</option>
-                                </select>
-                            </div>
-                        </div>
-                    </fieldset>
-
-                    <div id="installation-questions" class="hidden">
-                        <fieldset class="form-block"><legend>Household & Usage</legend>
-                            <div class="form-group-split">
-                                <div class="form-group"><label for="bedrooms">Bedrooms</label><select id="bedrooms" name="bedrooms" required><option value="1-2">1-2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option><option value="6+">6+</option></select></div>
-                                <div class="form-group"><label for="people">People in Home</label><select id="people" name="people" required><option value="1-2">1-2</option><option value="3-4" selected>3-4</option><option value="5-6">5-6</option><option value="7+">7+</option></select></div>
-                            </div>
-                            <div class="form-group"><label for="water-usage">Daily Water Use</label><select id="water-usage" name="water-usage" required><option value="low">Conservative</option><option value="average" selected>Average</option><option value="high">High</option></select></div>
-                        </fieldset>
-                        <fieldset class="form-block"><legend>Site & System</legend>
-                            <div class="form-group"><label for="soil-type">Site Conditions</label><select id="soil-type" name="soil-type" required><option value="" disabled selected>Select soil type...</option><option value="good">Good</option><option value="average">Average</option><option value="poor">Poor</option><option value="vpoor">Problematic</option></select></div>
-                            <div class="form-group"><label for="system-type">System Type</label><select id="system-type" name="system-type" required><option value="" disabled selected>Select soil type first...</option></select></div>
-                            <div class="form-group-split">
-                                <div class="form-group"><label for="tank-size">Tank Size (Gallons)</label><select id="tank-size" name="tank-size" required></select></div>
-                                <div class="form-group"><label for="tank-material">Tank Material</label><select id="tank-material" name="tank-material" required><option value="concrete" selected>Concrete</option><option value="plastic">Plastic</option><option value="fiberglass">Fiberglass</option></select></div>
-                            </div>
-                        </fieldset>
-                    </div>
-                    
-                    <div id="repair-questions" class="hidden">
-                        <fieldset class="form-block">
-                            <legend>Select Required Repairs</legend>
-                            <div id="repair-options-container"></div>
-                        </fieldset>
-                    </div>
-                    
-                    <div id="maintenance-questions" class="hidden">
-                        <fieldset class="form-block">
-                            <legend>Select Maintenance Tasks</legend>
-                            <div id="maintenance-options-container"></div>
-                        </fieldset>
-                    </div>
-                    
-                    <div class="panel-navigation"><button type="button" class="button secondary-button" id="back-btn-2">← Back</button><button type="submit" class="button" id="calculate-btn">Generate Quote →</button></div>
-                </div>
-            </form>
+  <!-- Header -->
+  <header class="sticky top-0 z-50 backdrop-blur-lg bg-black/30 border-b border-white/10">
+    <div class="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="relative">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 to-cyan-500 grid place-items-center shadow-glow">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="1.8">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M4 12h16M4 17h16" />
+            </svg>
+          </div>
+          <span class="absolute -right-2 -top-2 w-3 h-3 rounded-full bg-emerald-400 animate-ping-slow"></span>
         </div>
-        <div class="app-sidebar"><div id="results-container">
-            <div id="results-placeholder">
-                <!-- === UI REVAMP: New Placeholder Content === -->
-                <div class="placeholder-content">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><path d="M12 14l-2-2 2-2"></path><path d="M12 14l2-2-2-2"></path></svg>
-                    <h3>Your Quote Will Appear Here</h3>
-                    <p>Complete the form on the left to generate your detailed cost analysis.</p>
-                </div>
-            </div>
-            <div id="results-output" class="hidden">
-                <div id="system-info-box" class="hidden fade-in"><h4 id="system-info-title">System Information</h4><p id="system-info-description"></p></div>
-                <h3 class="sidebar-title" id="results-summary-text">Estimate</h3><h2 class="price-range" id="results-range">$0 - $0</h2>
-                <div class="breakdown-section"><h4>Hyper-Detailed Cost Breakdown</h4><div id="results-breakdown" class="stagger-children"></div></div>
-                <div class="notes-section"><h4>Expert Notes</h4><div id="results-notes"></div></div>
-                
-                <div class="results-actions">
-                    <button type="button" id="download-pdf-btn" class="button full-width no-print">Download Quote (PDF)</button>
-                    <button type="button" id="start-over-btn" class="button secondary-button full-width no-print">Start New Estimate</button>
-                </div>
-            </div>
-        </div></div>
+        <div>
+          <h1 class="font-display font-extrabold text-xl tracking-tight">SepticPro Estimator</h1>
+          <p class="text-white/60 text-xs -mt-0.5">Professional Cost Calculator</p>
+        </div>
+      </div>
+      <div class="hidden md:flex items-center gap-3">
+        <a href="#quote" class="px-3 py-2 rounded-lg border border-white/15 text-sm hover:bg-white/10 transition">See Quote</a>
+        <button id="downloadQuoteTop" class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 font-semibold text-sm shadow-glow hover:scale-[1.02] active:scale-[.99] transition">
+          Download PDF
+        </button>
+      </div>
     </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="relative">
+    <div class="max-w-7xl mx-auto px-5 pt-10 md:pt-16">
+      <div class="grid lg:grid-cols-12 gap-8 items-center">
+        <div class="lg:col-span-6">
+          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/15 bg-white/5 text-white/80 text-xs mb-4">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> AI-assisted ranges with regional multipliers
+          </div>
+          <h2 class="font-display text-3xl md:text-5xl font-extrabold leading-tight">
+            Accurate septic system estimates,
+            <span class="bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">beautifully presented.</span>
+          </h2>
+          <p class="text-white/70 mt-4 max-w-xl">
+            Pick the work type, add details, and get a clear price range adjusted to your location—no confusing fades, just crisp, readable results.
+          </p>
+          <div class="flex flex-wrap gap-3 mt-6">
+            <button id="scrollToForm" class="px-5 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 font-semibold shadow-glow hover:scale-[1.02] active:scale-[.99] transition">
+              Start Your Estimate
+            </button>
+            <a href="#how-it-works" class="px-5 py-3 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition">
+              How it works
+            </a>
+          </div>
+        </div>
+        <div class="lg:col-span-6">
+          <div class="glass rounded-3xl p-5 md:p-6 shadow-glass relative overflow-hidden">
+            <div class="absolute -right-20 -top-20 w-72 h-72 bg-emerald-500/20 rounded-full blur-3xl"></div>
+            <div class="absolute -left-24 -bottom-24 w-72 h-72 bg-cyan-500/20 rounded-full blur-3xl"></div>
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-2xl bg-white/10 grid place-items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 12h18M3 6h18M3 18h18"/>
+                </svg>
+              </div>
+              <div>
+                <p class="text-white/70 text-sm">Ready in</p>
+                <p class="font-semibold">3 simple steps</p>
+              </div>
+            </div>
+            <div class="grid grid-cols-3 gap-3 mt-5">
+              <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                <p class="text-xs text-white/60">Step 1</p>
+                <p class="font-semibold">Pick work</p>
+              </div>
+              <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                <p class="text-xs text-white/60">Step 2</p>
+                <p class="font-semibold">Add details</p>
+              </div>
+              <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                <p class="text-xs text-white/60">Step 3</p>
+                <p class="font-semibold">Get quote</p>
+              </div>
+            </div>
+            <div class="mt-5 text-white/70 text-sm">
+              Export a polished PDF any time—print styles remove transparency for maximum clarity.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main -->
+  <main class="max-w-7xl mx-auto px-5 py-10 md:py-14" id="formSection">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <!-- Form -->
+      <div class="lg:col-span-7 space-y-6">
+        <!-- Stepper -->
+        <div class="relative glass rounded-3xl p-5 shadow-glass stepper">
+          <div class="stepper-line"></div>
+          <div id="stepperProgress" class="stepper-progress" style="width:33%;"></div>
+
+          <div class="grid grid-cols-3 relative z-10 gap-4">
+            <div class="text-center">
+              <div id="s1" class="mx-auto w-10 h-10 rounded-full grid place-items-center border border-white/20 bg-white/10 font-bold">1</div>
+              <p class="mt-2 text-sm text-white/80">Work Type</p>
+            </div>
+            <div class="text-center">
+              <div id="s2" class="mx-auto w-10 h-10 rounded-full grid place-items-center border border-white/20 bg-white/5 font-bold">2</div>
+              <p class="mt-2 text-sm text-white/60">Details</p>
+            </div>
+            <div class="text-center">
+              <div id="s3" class="mx-auto w-10 h-10 rounded-full grid place-items-center border border-white/20 bg-white/5 font-bold">3</div>
+              <p class="mt-2 text-sm text-white/60">Quote</p>
+            </div>
+          </div>
+        </div>
+
+        <form id="septicForm" class="space-y-6" novalidate>
+          <!-- Step 1 -->
+          <section id="step1" class="step active animate-slide-up">
+            <div class="glass rounded-3xl p-6 md:p-7 shadow-glass">
+              <h3 class="font-display text-2xl font-bold">What type of work do you need?</h3>
+              <p class="text-white/70 mt-1">Choose one option to continue.</p>
+
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+                <button type="button" data-type="installation" class="work-card group rounded-2xl border border-white/15 bg-white/5 p-5 text-left hover:translate-y-[-2px] transition card-hover">
+                  <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-500/80 to-cyan-500/80 grid place-items-center mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M4 10v10h16V10" />
+                    </svg>
+                  </div>
+                  <p class="font-semibold">New Installation</p>
+                  <p class="text-sm text-white/60">Design & build a new system.</p>
+                </button>
+
+                <button type="button" data-type="repair" class="work-card group rounded-2xl border border-white/15 bg-white/5 p-5 text-left hover:translate-y-[-2px] transition card-hover">
+                  <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-500/80 to-cyan-500/80 grid place-items-center mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M3 7h18M5 7l.8 12a2 2 0 002 1.8h8.4a2 2 0 002-1.8L19 7M10 11v6M14 11v6" />
+                    </svg>
+                  </div>
+                  <p class="font-semibold">System Repair</p>
+                  <p class="text-sm text-white/60">Fix components & lines.</p>
+                </button>
+
+                <button type="button" data-type="maintenance" class="work-card group rounded-2xl border border-white/15 bg-white/5 p-5 text-left hover:translate-y-[-2px] transition card-hover">
+                  <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-500/80 to-cyan-500/80 grid place-items-center mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m6-6H6" />
+                    </svg>
+                  </div>
+                  <p class="font-semibold">Routine Maintenance</p>
+                  <p class="text-sm text-white/60">Keep things running well.</p>
+                </button>
+              </div>
+
+              <p id="workTypeError" class="mt-3 text-sm text-red-300 hidden">Please select a work type to continue.</p>
+
+              <div class="flex justify-end mt-6">
+                <button type="button" id="nextToStep2" class="px-5 py-3 rounded-xl bg-white/10 border border-white/15 hover:bg-white/15 disabled:opacity-50 disabled:cursor-not-allowed transition">
+                  Continue →
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <!-- Step 2 -->
+          <section id="step2" class="step animate-slide-up">
+            <!-- Installation -->
+            <div id="details-installation" class="space-y-6 hidden">
+              <div class="glass rounded-3xl p-6 shadow-glass">
+                <h4 class="font-display font-bold text-xl">Household & Site</h4>
+                <div class="grid md:grid-cols-2 gap-5 mt-4">
+                  <label class="block">
+                    <span class="text-sm text-white/80">Number of Bedrooms</span>
+                    <select name="bedrooms" class="field mt-2">
+                      <option value="1-2">1-2 Bedrooms</option>
+                      <option value="3" selected>3 Bedrooms</option>
+                      <option value="4">4 Bedrooms</option>
+                      <option value="5+">5+ Bedrooms</option>
+                    </select>
+                  </label>
+                  <label class="block">
+                    <span class="text-sm text-white/80">Soil Conditions <span class="text-red-300">*</span></span>
+                    <select name="soil-type" class="field mt-2" required>
+                      <option value="" disabled selected>Select soil type</option>
+                      <option value="good">Good (Sandy, Loamy)</option>
+                      <option value="average">Average (Some Clay)</option>
+                      <option value="poor">Poor (Heavy Clay, Rocky)</option>
+                    </select>
+                    <span class="text-xs text-red-300 mt-1 hidden" data-error="soil-type">Please select soil type.</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="glass rounded-3xl p-6 shadow-glass">
+                <h4 class="font-display font-bold text-xl">System Type</h4>
+                <p class="text-white/70 text-sm mt-1">Options filtered by soil compatibility.</p>
+                <div id="systemTypeContainer" class="grid md:grid-cols-2 gap-4 mt-5"></div>
+              </div>
+            </div>
+
+            <!-- Repair -->
+            <div id="details-repair" class="hidden">
+              <div class="glass rounded-3xl p-6 shadow-glass">
+                <h4 class="font-display font-bold text-xl">Select Repair Services</h4>
+                <div id="repairOptionsContainer" class="mt-4 space-y-3"></div>
+              </div>
+            </div>
+
+            <!-- Maintenance -->
+            <div id="details-maintenance" class="hidden">
+              <div class="glass rounded-3xl p-6 shadow-glass">
+                <h4 class="font-display font-bold text-xl">Select Maintenance Tasks</h4>
+                <div id="maintenanceOptionsContainer" class="mt-4 space-y-3"></div>
+              </div>
+            </div>
+
+            <!-- Common Location -->
+            <div class="glass rounded-3xl p-6 shadow-glass">
+              <h4 class="font-display font-bold text-xl">Location Details</h4>
+              <p class="text-white/70 text-sm mt-1">We adjust for state and area type.</p>
+              <div class="grid md:grid-cols-2 gap-5 mt-4">
+                <label class="block">
+                  <span class="text-sm text-white/80">U.S. State <span class="text-red-300">*</span></span>
+                  <select name="state" class="field mt-2" required>
+                    <option value="" disabled selected>Select your state</option>
+                  </select>
+                  <span class="text-xs text-red-300 mt-1 hidden" data-error="state">Please select a state.</span>
+                </label>
+                <label class="block">
+                  <span class="text-sm text-white/80">Area Type</span>
+                  <select name="area-type" class="field mt-2" required>
+                    <option value="suburban" selected>Suburban</option>
+                    <option value="urban">Urban / City</option>
+                    <option value="rural">Rural / Countryside</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between gap-3">
+              <button type="button" class="back-btn px-5 py-3 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition">← Back</button>
+              <button type="submit" class="calculate-btn px-5 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 font-semibold shadow-glow hover:scale-[1.02] active:scale-[.99] transition">
+                Calculate Quote
+              </button>
+            </div>
+          </section>
+
+          <!-- Step 3 -->
+          <section id="step3" class="step animate-slide-up">
+            <div id="quoteResultContainer" class="glass rounded-3xl p-6 shadow-glass"></div>
+            <div class="grid sm:grid-cols-2 gap-3 mt-4">
+              <button type="button" id="startOver" class="px-5 py-3 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition">Start Over</button>
+              <button type="button" id="downloadQuote" class="px-5 py-3 rounded-xl bg-primary hover:bg-primaryDark transition">Download PDF</button>
+            </div>
+          </section>
+        </form>
+      </div>
+
+      <!-- Sidebar -->
+      <aside class="lg:col-span-5">
+        <div class="glass rounded-3xl shadow-glass sticky top-24 overflow-hidden">
+          <div class="p-5 border-b border-white/10 bg-white/5">
+            <h3 class="font-display font-bold text-xl">Your Estimate</h3>
+            <p class="text-white/60 text-sm">Complete the form to see your quote</p>
+          </div>
+
+          <div id="resultsPlaceholder" class="p-7 min-h-[320px] grid place-items-center text-center">
+            <div class="w-24 h-24 rounded-full bg-white/5 grid place-items-center mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            <div>
+              <h4 class="font-display font-bold text-lg">Your Quote Awaits</h4>
+              <p class="text-white/70 text-sm max-w-xs mx-auto">Fill out the form to generate a personalized cost estimate.</p>
+            </div>
+          </div>
+
+          <div id="resultsContent" class="hidden p-6">
+            <div class="text-center mb-6">
+              <div id="totalCostRange" class="text-4xl font-display font-extrabold text-emerald-400"></div>
+              <p class="text-white/60 text-sm mt-1">Estimated range</p>
+            </div>
+
+            <div class="mb-6">
+              <h5 class="font-display font-bold text-lg mb-2 text-white">Cost Breakdown</h5>
+              <div id="costBreakdown" class="space-y-2 text-sm"></div>
+            </div>
+
+            <div class="rounded-2xl border border-emerald-400/30 bg-emerald-500/10 p-4">
+              <h6 class="font-display font-bold text-white">Expert Notes</h6>
+              <div id="expertNotes" class="text-sm text-white/90 mt-1 space-y-1"></div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-white/10 bg-black/30">
+    <div class="max-w-7xl mx-auto px-5 py-8 text-white/60 text-sm">
+      © <span id="year"></span> SepticPro Estimator. All rights reserved.
+    </div>
+  </footer>
+
+  <!-- Data & Logic -->
+  <script>
+    const regionalCostData = {"AL":{"name":"Alabama","multiplier":0.82},"AK":{"name":"Alaska","multiplier":1.35},"AZ":{"name":"Arizona","multiplier":1.05},"AR":{"name":"Arkansas","multiplier":0.8},"CA":{"name":"California","multiplier":1.45},"CO":{"name":"Colorado","multiplier":1.15},"CT":{"name":"Connecticut","multiplier":1.25},"DE":{"name":"Delaware","multiplier":1.05},"DC":{"name":"District of Columbia","multiplier":1.4},"FL":{"name":"Florida","multiplier":1},"GA":{"name":"Georgia","multiplier":0.88},"HI":{"name":"Hawaii","multiplier":1.6},"ID":{"name":"Idaho","multiplier":0.95},"IL":{"name":"Illinois","multiplier":1.1},"IN":{"name":"Indiana","multiplier":0.9},"IA":{"name":"Iowa","multiplier":0.88},"KS":{"name":"Kansas","multiplier":0.87},"KY":{"name":"Kentucky","multiplier":0.85},"LA":{"name":"Louisiana","multiplier":0.86},"ME":{"name":"Maine","multiplier":1.15},"MD":{"name":"Maryland","multiplier":1.22},"MA":{"name":"Massachusetts","multiplier":1.38},"MI":{"name":"Michigan","multiplier":1.02},"MN":{"name":"Minnesota","multiplier":1.12},"MS":{"name":"Mississippi","multiplier":0.78},"MO":{"name":"Missouri","multiplier":0.89},"MT":{"name":"Montana","multiplier":1},"NE":{"name":"Nebraska","multiplier":0.9},"NV":{"name":"Nevada","multiplier":1.08},"NH":{"name":"New Hampshire","multiplier":1.2},"NJ":{"name":"New Jersey","multiplier":1.3},"NM":{"name":"New Mexico","multiplier":0.92},"NY":{"name":"New York","multiplier":1.32},"NC":{"name":"North Carolina","multiplier":0.9},"ND":{"name":"North Dakota","multiplier":0.98},"OH":{"name":"Ohio","multiplier":0.94},"OK":{"name":"Oklahoma","multiplier":0.84},"OR":{"name":"Oregon","multiplier":1.18},"PA":{"name":"Pennsylvania","multiplier":1.06},"RI":{"name":"Rhode Island","multiplier":1.19},"SC":{"name":"South Carolina","multiplier":0.86},"SD":{"name":"South Dakota","multiplier":0.88},"TN":{"name":"Tennessee","multiplier":0.87},"TX":{"name":"Texas","multiplier":0.91},"UT":{"name":"Utah","multiplier":1.04},"VT":{"name":"Vermont","multiplier":1.21},"VA":{"name":"Virginia","multiplier":1.01},"WA":{"name":"Washington","multiplier":1.25},"WV":{"name":"West Virginia","multiplier":0.83},"WI":{"name":"Wisconsin","multiplier":1.05},"WY":{"name":"Wyoming","multiplier":0.99},"default":{"name":"National Average","multiplier":1}};
+    const septicSystems = {"systems":{"conventional_gravity":{"name":"Conventional Gravity System","description":"Standard gravity-fed system.","soil_compatibility":["good","average"],"cost_breakdown":{"Permits & Design":[500,1500],"Septic Tank":[900,2000],"Drainfield Materials":[1500,4000],"Excavation & Labor":[2500,6000]}},"chamber_system":{"name":"Chamber System","description":"Gravel-less system, saves space.","soil_compatibility":["good","average"],"cost_breakdown":{"Permits & Design":[500,1500],"Septic Tank":[900,2000],"Drainfield Chambers":[2500,5500],"Excavation & Labor":[2800,6500]}},"aerobic_treatment_unit":{"name":"Aerobic Treatment Unit (ATU)","description":"High-tech treatment for poor soil.","soil_compatibility":["average","poor"],"cost_breakdown":{"Permits & Engineered Design":[1000,2500],"ATU Tank & Components":[7000,12000],"Drainfield Materials":[1500,4000],"Excavation & Labor":[3000,6000]}},"mound_system":{"name":"Mound System","description":"Raised drainfield for difficult sites.","soil_compatibility":["poor"],"cost_breakdown":{"Permits & Engineered Design":[1200,3000],"Septic Tank & Pump Tank":[2000,4000],"Engineered Sand Fill":[4000,9000],"Excavation & Heavy Labor":[4500,8500]}}},"repair":{"pump_replacement":{"name":"Effluent Pump Replacement","min":900,"max":2500},"baffle_repair":{"name":"Inlet/Outlet Baffle Repair","min":350,"max":900},"distribution_box":{"name":"Distribution Box Replacement","min":800,"max":2000},"pipe_repair":{"name":"Cracked Pipe Repair (Tank to D-Box)","min":1000,"max":3000},"lid_replacement":{"name":"Tank Lid/Riser Replacement","min":400,"max":1000}},"maintenance":{"pumping":{"name":"Routine Tank Pumping","min":300,"max":700},"inspection":{"name":"Full System Inspection","min":350,"max":600},"filter_cleaning":{"name":"Effluent Filter Cleaning","min":100,"max":250},"atu_service_contract":{"name":"Aerobic System Service (Annual)","min":300,"max":700}}};
+
+    // State
+    const stateSelect = () => document.querySelector('select[name="state"]');
+    const steps = {
+      1: document.getElementById('step1'),
+      2: document.getElementById('step2'),
+      3: document.getElementById('step3'),
+    };
+    const detailsContainers = {
+      installation: document.getElementById('details-installation'),
+      repair: document.getElementById('details-repair'),
+      maintenance: document.getElementById('details-maintenance')
+    };
+
+    let selectedWorkType = null;
+
+    // Helpers
+    function goToStep(n) {
+      Object.values(steps).forEach(s => s.classList.remove('active'));
+      steps[n].classList.add('active');
+      const progress = document.getElementById('stepperProgress');
+      const s1 = document.getElementById('s1'), s2 = document.getElementById('s2'), s3 = document.getElementById('s3');
+      [s1,s2,s3].forEach(el=> el.classList.replace('bg-white/10', 'bg-white/5'));
+      if(n>=1){ s1.style.background='linear-gradient(180deg, rgba(16,185,129,.2), rgba(255,255,255,.06))'; s1.style.borderColor='rgba(16,185,129,.45)'; }
+      if(n>=2){ s2.style.background='linear-gradient(180deg, rgba(16,185,129,.2), rgba(255,255,255,.06))'; s2.style.borderColor='rgba(16,185,129,.45)'; }
+      if(n>=3){ s3.style.background='linear-gradient(180deg, rgba(16,185,129,.2), rgba(255,255,255,.06))'; s3.style.borderColor='rgba(16,185,129,.45)'; }
+      progress.style.width = (n*33.34) + '%';
+    }
+
+    function populateSystemTypes() {
+      const soilType = document.querySelector('select[name="soil-type"]')?.value || '';
+      const container = document.getElementById('systemTypeContainer');
+      if(!container) return;
+      container.innerHTML = Object.entries(septicSystems.systems).map(([key, system]) => {
+        const compatible = !soilType || system.soil_compatibility.includes(soilType);
+        return `
+          <label class="block rounded-2xl border ${compatible ? 'border-white/15 hover:border-emerald-400/40 cursor-pointer' : 'border-white/10 opacity-60 cursor-not-allowed'} bg-white/5 p-4 transition">
+            <div class="flex gap-3 items-start">
+              <input type="radio" name="system-type" value="${key}" ${!compatible?'disabled':''}
+                class="mt-1.5 h-5 w-5 rounded border-white/20 bg-white/10 checked:ring-2 checked:ring-emerald-400 checked:border-emerald-400">
+              <div>
+                <p class="font-semibold text-white">${system.name}</p>
+                <p class="text-sm text-white/70">${system.description}</p>
+                <div class="flex gap-2 mt-2">
+                  ${system.soil_compatibility.map(s=>`<span class="text-[11px] px-2 py-0.5 rounded-full border border-white/15 bg-white/5">${s}</span>`).join('')}
+                </div>
+              </div>
+            </div>
+          </label>
+        `;
+      }).join('');
+    }
+
+    function populateOptions() {
+      // States
+      const list = Object.keys(regionalCostData).filter(k => k.length===2).sort((a,b)=>regionalCostData[a].name.localeCompare(regionalCostData[b].name));
+      list.forEach(k => stateSelect().add(new Option(regionalCostData[k].name, k)));
+
+      // Repair & Maintenance
+      const mkCheck = (key, item) => `
+        <label class="flex items-center gap-3 rounded-2xl border border-white/15 bg-white/5 p-4 hover:border-emerald-400/40 transition">
+          <input type="checkbox" name="service-item" value="${key}" class="h-5 w-5 rounded border-white/20 bg-white/10 checked:ring-2 checked:ring-emerald-400 checked:border-emerald-400">
+          <span class="text-white">${item.name}</span>
+          <span class="ml-auto text-sm text-white/60">$${item.min.toLocaleString()} - $${item.max.toLocaleString()}</span>
+        </label>
+      `;
+      document.getElementById('repairOptionsContainer').innerHTML =
+        Object.entries(septicSystems.repair).map(([k,v])=>mkCheck(k,v)).join('');
+      document.getElementById('maintenanceOptionsContainer').innerHTML =
+        Object.entries(septicSystems.maintenance).map(([k,v])=>mkCheck(k,v)).join('');
+      populateSystemTypes();
+    }
+
+    function calculateQuote(data) {
+      const stateData = regionalCostData[data.state] || regionalCostData.default;
+      const areaMultiplier = { urban: 1.15, suburban: 1.0, rural: 0.9 }[data['area-type']];
+      const multiplier = stateData.multiplier * areaMultiplier;
+
+      let totalMin = 0, totalMax = 0, breakdown = {}, title = '';
+
+      if (data.workType === 'installation') {
+        if (!data['system-type']) { showInlineError('system-type', 'Please select a system type.'); return null; }
+        const system = septicSystems.systems[data['system-type']];
+        title = `Estimate for a New ${system.name}`;
+        Object.entries(system.cost_breakdown).forEach(([item, costs]) => {
+          totalMin += costs[0]; totalMax += costs[1];
+          breakdown[item] = `$${costs[0].toLocaleString()} - $${costs[1].toLocaleString()}`;
+        });
+      } else {
+        const sourceData = septicSystems[data.workType];
+        title = `Estimate for System ${data.workType.charAt(0).toUpperCase() + data.workType.slice(1)}`;
+        if(!data.selectedItems || data.selectedItems.length === 0) { alert(`Please select at least one ${data.workType} item.`); return null; }
+        data.selectedItems.forEach(key => {
+          const item = sourceData[key];
+          totalMin += item.min; totalMax += item.max;
+          breakdown[item.name] = `$${item.min.toLocaleString()} - $${item.max.toLocaleString()}`;
+        });
+      }
+
+      return {
+        title,
+        finalMin: Math.round(totalMin * multiplier),
+        finalMax: Math.round(totalMax * multiplier),
+        breakdown,
+        notes: `Costs are adjusted for <strong>${stateData.name}</strong> and a <strong>${data['area-type']}</strong> area. (Total Multiplier: ${multiplier.toFixed(2)}x)`
+      };
+    }
+
+    function displayQuote(quote) {
+      document.getElementById('resultsPlaceholder').classList.add('hidden');
+      const resultsContent = document.getElementById('resultsContent');
+      resultsContent.classList.remove('hidden');
+
+      document.getElementById('totalCostRange').textContent =
+        `$${quote.finalMin.toLocaleString()} - $${quote.finalMax.toLocaleString()}`;
+
+      document.getElementById('costBreakdown').innerHTML =
+        Object.entries(quote.breakdown)
+          .map(([k,v])=>`<div class="flex items-center justify-between border-b border-white/10 py-2"><span class="text-white/80">${k}</span><span class="font-semibold">${v}</span></div>`)
+          .join('');
+
+      document.getElementById('expertNotes').innerHTML = `<p>${quote.notes}</p>`;
+
+      // Main panel
+      document.getElementById('quoteResultContainer').innerHTML = `
+        <div id="quote" class="print-bg">
+          <h2 class="font-display text-2xl font-bold">${quote.title}</h2>
+          <p class="text-white/70 mt-1">Based on the details you provided.</p>
+
+          <div class="mt-5 rounded-2xl border border-white/15 bg-white/5 p-6 text-center">
+            <p class="text-white/70 text-sm">Estimated Cost Range</p>
+            <p class="text-4xl font-display font-extrabold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent mt-1">
+              $${quote.finalMin.toLocaleString()} – $${quote.finalMax.toLocaleString()}
+            </p>
+          </div>
+
+          <h3 class="font-display font-bold text-xl mt-6">Cost Breakdown</h3>
+          <div class="mt-3 rounded-2xl border border-white/15 bg-white/5">
+            ${Object.entries(quote.breakdown).map(([k,v])=>`
+              <div class="flex items-center justify-between py-3 px-4 border-b border-white/10 last:border-0">
+                <span class="text-white/80">${k}</span><span class="font-semibold">${v}</span>
+              </div>`).join('')}
+          </div>
+
+          <div class="mt-6 rounded-2xl border border-emerald-400/30 bg-emerald-500/10 p-4">
+            <p class="font-display font-semibold">Expert Notes</p>
+            <p class="text-white/90 mt-1">${quote.notes}</p>
+          </div>
+        </div>
+      `;
+    }
+
+    function clearSelections() {
+      document.querySelectorAll('.work-card').forEach(c => c.classList.remove('is-selected'));
+      selectedWorkType = null;
+      document.getElementById('nextToStep2').disabled = true;
+      document.getElementById('workTypeError').classList.add('hidden');
+    }
+
+    function downloadQuote() {
+      const quoteHTML = document.getElementById('quoteResultContainer').innerHTML;
+      const element = document.createElement('div');
+      element.innerHTML = `<div class="p-6 font-body text-black">${quoteHTML}</div>`;
+
+      const opt = {
+        margin:       [10, 10, 10, 10],
+        filename:     `SepticPro_Estimate_${new Date().toISOString().slice(0,10)}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true, background: '#FFFFFF' },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+      html2pdf().set(opt).from(element).save();
+    }
+
+    function showInlineError(name, message) {
+      const errEl = document.querySelector(`[data-error="${name}"]`);
+      if (errEl) { errEl.textContent = message; errEl.classList.remove('hidden'); }
+    }
+    function hideInlineError(name) {
+      const errEl = document.querySelector(`[data-error="${name}"]`);
+      if (errEl) errEl.classList.add('hidden');
+    }
+
+    function init() {
+      // Year
+      document.getElementById('year').textContent = new Date().getFullYear();
+
+      // Work selection
+      document.querySelectorAll('.work-card').forEach(card => {
+        card.addEventListener('click', () => {
+          document.querySelectorAll('.work-card').forEach(c=>c.classList.remove('is-selected'));
+          card.classList.add('is-selected');
+          selectedWorkType = card.dataset.type;
+          document.getElementById('nextToStep2').disabled = false;
+          document.getElementById('workTypeError').classList.add('hidden');
+        });
+      });
+
+      // Continue to Step 2
+      document.getElementById('nextToStep2').addEventListener('click', () => {
+        if(!selectedWorkType) { document.getElementById('workTypeError').classList.remove('hidden'); return; }
+        // Hide all detail containers
+        Object.values(detailsContainers).forEach(c => {
+          c.classList.add('hidden');
+          c.querySelectorAll('input, select')?.forEach(el => el.disabled = true);
+        });
+        // Show active
+        const active = detailsContainers[selectedWorkType];
+        active.classList.remove('hidden');
+        active.querySelectorAll('input, select')?.forEach(el => el.disabled = false);
+        goToStep(2);
+      });
+
+      // Back buttons
+      document.querySelectorAll('.back-btn').forEach(btn => btn.addEventListener('click', () => goToStep(1)));
+
+      // Populate controls
+      populateOptions();
+
+      // Soil filter
+      document.querySelector('select[name="soil-type"]')?.addEventListener('change', e => {
+        hideInlineError('soil-type');
+        populateSystemTypes();
+      });
+
+      // Simple required validation for selects
+      ['state','soil-type'].forEach(name=>{
+        const el = document.querySelector(`select[name="${name}"]`);
+        if (!el) return;
+        el.addEventListener('change', ()=> hideInlineError(name));
+        el.addEventListener('invalid', (e)=> {
+          e.preventDefault();
+          showInlineError(name, name === 'state' ? 'Please select a state.' : 'Please select soil type.');
+        });
+      });
+
+      // Submit
+      document.getElementById('septicForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const form = e.currentTarget;
+
+        // guard required fields
+        const state = form.querySelector('select[name="state"]');
+        if (state && !state.value) { showInlineError('state','Please select a state.'); state.focus(); return; }
+        if (selectedWorkType === 'installation') {
+          const soil = form.querySelector('select[name="soil-type"]');
+          if (soil && !soil.value) { showInlineError('soil-type','Please select soil type.'); soil.focus(); return; }
+        }
+
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+        data.workType = selectedWorkType;
+        if(selectedWorkType === 'repair' || selectedWorkType === 'maintenance') {
+          data.selectedItems = formData.getAll('service-item');
+        }
+        const quote = calculateQuote(data);
+        if(quote){ displayQuote(quote); goToStep(3); }
+      });
+
+      // Start over
+      document.getElementById('startOver').addEventListener('click', () => {
+        const form = document.getElementById('septicForm');
+        form.reset();
+        clearSelections();
+        document.getElementById('resultsPlaceholder').classList.remove('hidden');
+        document.getElementById('resultsContent').classList.add('hidden');
+        populateSystemTypes();
+        goToStep(1);
+      });
+
+      // PDF
+      document.getElementById('downloadQuote').addEventListener('click', downloadQuote);
+      document.getElementById('downloadQuoteTop').addEventListener('click', downloadQuote);
+
+      // Smooth scroll
+      document.getElementById('scrollToForm').addEventListener('click', () => {
+        document.getElementById('formSection').scrollIntoView({ behavior: 'smooth' });
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
 </body>
 </html>
