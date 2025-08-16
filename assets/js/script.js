@@ -1,261 +1,151 @@
-/**
- * Septic System Estimator - Definitive Script v4.5 (Final Validation Fix)
- * Description: Paired with corrected HTML, this script now definitively fixes the
- * "Generate Quote" button by correctly disabling inputs in consistently-structured hidden sections.
- */
-document.addEventListener('DOMContentLoaded', () => {
-    // State and Data
-    let septicData = null, regionalData = null;
-    let appState = { workType: null, currentPanel: 1 };
+/* === ROOT VARIABLES & GLOBAL STYLES (v2.0 Professional Palette) === */
+:root {
+  --brand-primary: #0d2c54; /* Deep, trustworthy navy blue */
+  --brand-accent: #00796b;  /* Vibrant, clear teal for actions */
+  --brand-accent-dark: #004d40;
+  --surface-main: #ffffff;
+  --surface-secondary: #f8fafc; /* For sidebar and subtle backgrounds */
+  --background: #f1f5f9;
+  --text-main: #1e293b;
+  --text-secondary: #64748b;
+  --text-on-primary: #ffffff;
+  --border-color: #e2e8f0;
+  --border-color-active: #a5b4fc;
+  
+  --font-primary: 'Roboto', sans-serif;
+  --font-headings: 'Montserrat', sans-serif;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --border-radius: 0.5rem; /* Slightly smaller for a sharper look */
+}
 
-    // DOM Elements
-    const form = document.getElementById('septic-calculator-form');
-    const panels = { 1: document.getElementById('panel-1'), 2: document.getElementById('panel-2') };
-    const steps = { 1: document.getElementById('step-1'), 2: document.getElementById('step-2'), 3: document.getElementById('step-3') };
-    const panel2Title = document.getElementById('panel-2-title');
-    const selectionCards = document.querySelectorAll('.selection-card');
-    const questionGroups = {
-        installation: document.getElementById('installation-questions'),
-        repair: document.getElementById('repair-questions'),
-        maintenance: document.getElementById('maintenance-questions')
-    };
-    const backBtn = document.getElementById('back-btn-2'), startOverBtn = document.getElementById('start-over-btn');
-    const stateSelect = document.getElementById('state');
-    const repairOptionsContainer = document.getElementById('repair-options-container');
-    const maintenanceOptionsContainer = document.getElementById('maintenance-options-container');
-    const systemTypeSelect = document.getElementById('system-type');
-    const soilTypeSelect = document.getElementById('soil-type');
-    const systemInfoBox = document.getElementById('system-info-box');
-    const resultsPlaceholder = document.getElementById('results-placeholder');
-    const resultsOutput = document.getElementById('results-output');
-    const resultsSummaryText = document.getElementById('results-summary-text');
-    const resultsRange = document.getElementById('results-range');
-    const resultsBreakdown = document.getElementById('results-breakdown');
-    const resultsNotes = document.getElementById('results-notes');
-    const tankSizeSelect = document.getElementById('tank-size');
-    const bedroomsSelect = document.getElementById('bedrooms');
-    const peopleSelect = document.getElementById('people');
-    const downloadPdfBtn = document.getElementById('download-pdf-btn');
-    
-    // --- INITIALIZATION ---
-    async function initializeApp() {
-        try {
-            const [septicRes, regionalRes] = await Promise.all([ fetch('data/septic_systems.json'), fetch('data/regional_cost_data.json') ]);
-            if (!septicRes.ok || !regionalRes.ok) throw new Error('Failed to load critical data files.');
-            septicData = await septicRes.json();
-            regionalData = await regionalRes.json();
-            populateStaticUI();
-            setupEventListeners();
-            // On page load, disable all conditional inputs by default.
-            manageFormInputs(null);
-        } catch (error) {
-            console.error("Initialization Fatal Error:", error);
-            document.querySelector('.app-main').innerHTML = `<p style="color:red; text-align:center;">A critical error occurred. Please ensure 'data/septic_systems.json' and 'data/regional_cost_data.json' are accessible.</p>`;
-        }
-    }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-    function populateStaticUI() {
-        const states = Object.keys(regionalData).filter(key => key.length === 2).sort((a, b) => regionalData[a].name.localeCompare(regionalData[b].name));
-        states.forEach(key => stateSelect.add(new Option(`${regionalData[key].name} (${key})`, key)));
+body {
+  font-family: var(--font-primary);
+  background-color: var(--background);
+  color: var(--text-main);
+  line-height: 1.6;
+  font-size: 16px;
+}
 
-        const createCheckbox = (key, item, type) => `<div class="form-group-checkbox"><input type="checkbox" id="${type}-${key}" name="${type}-item" value="${key}"><label for="${type}-${key}">${item.name}</label></div>`;
-        repairOptionsContainer.innerHTML = Object.entries(septicData.repair).map(([key, item]) => createCheckbox(key, item, 'repair')).join('');
-        maintenanceOptionsContainer.innerHTML = Object.entries(septicData.maintenance).map(([key, item]) => createCheckbox(key, item, 'maintenance')).join('');
-    }
+/* === UTILITY CLASSES === */
+.hidden {
+  display: none !important;
+}
 
-    // --- Centralized Input Management Function ---
-    function manageFormInputs(activeWorkType) {
-        for (const type in questionGroups) {
-            const group = questionGroups[type];
-            const inputs = group.querySelectorAll('input, select');
-            
-            if (type === activeWorkType) {
-                group.classList.remove('hidden');
-                inputs.forEach(input => input.disabled = false);
-            } else {
-                group.classList.add('hidden');
-                inputs.forEach(input => input.disabled = true);
-            }
-        }
-    }
+/* === APP LAYOUT & STRUCTURE === */
+.app-layout { display: grid; grid-template-columns: 1fr; min-height: 100vh; }
+.app-main { padding: 2rem 1.5rem; }
+.app-sidebar { background-color: var(--surface-secondary); padding: 2rem 1.5rem; border-top: 1px solid var(--border-color); }
 
-    // --- UI & EVENT HANDLING ---
-    function setupEventListeners() {
-        selectionCards.forEach(card => card.addEventListener('click', handleWorkTypeSelection));
-        backBtn.addEventListener('click', () => goToPanel(1));
-        startOverBtn.addEventListener('click', resetCalculator);
-        form.addEventListener('submit', handleFormSubmit);
-        soilTypeSelect.addEventListener('change', handleSoilChange);
-        systemTypeSelect.addEventListener('change', () => displaySystemInfo(systemTypeSelect.value));
-        bedroomsSelect.addEventListener('change', recommendTankSize);
-        peopleSelect.addEventListener('change', recommendTankSize);
-        downloadPdfBtn.addEventListener('click', generatePdf);
-    }
-    
-    function handleWorkTypeSelection(e) {
-        appState.workType = e.currentTarget.dataset.workType;
-        selectionCards.forEach(card => card.classList.remove('selected'));
-        e.currentTarget.classList.add('selected');
-        
-        manageFormInputs(appState.workType);
-        
-        const titles = { installation: 'New Installation Profile', repair: 'Repair Details', maintenance: 'Maintenance Details' };
-        panel2Title.textContent = titles[appState.workType] || 'Details';
-        if (appState.workType === 'installation') recommendTankSize();
-        setTimeout(() => goToPanel(2), 300);
-    }
-    
-    function handleSoilChange() {
-        const soilType = soilTypeSelect.value;
-        systemTypeSelect.innerHTML = '<option value="" disabled selected>Select system...</option>';
-        systemInfoBox.classList.add('hidden');
-        if (!soilType) return;
-        for (const key in septicData.systems) {
-            const system = septicData.systems[key];
-            if (system.soil_compatibility.includes(soilType)) systemTypeSelect.add(new Option(system.name, key));
-        }
-    }
-    
-    function displaySystemInfo(systemKey) {
-        if (!systemKey || !septicData.systems[systemKey]) { systemInfoBox.classList.add('hidden'); return; }
-        const system = septicData.systems[systemKey];
-        document.getElementById('system-info-title').textContent = system.name;
-        document.getElementById('system-info-description').textContent = system.description;
-        systemInfoBox.classList.remove('hidden');
-    }
+/* === HEADER & STEPPER === */
+.app-header { text-align: center; margin-bottom: 2rem; }
+.app-header h2 { font-family: var(--font-headings); font-size: 1.75rem; color: var(--brand-primary); }
+.app-header p { color: var(--text-secondary); }
 
-    function recommendTankSize() {
-        let size = 1000;
-        if (bedroomsSelect.value === '4' || peopleSelect.value === '5-6') size = 1250;
-        if (['5', '6+'].includes(bedroomsSelect.value) || peopleSelect.value === '7+') size = 1500;
-        
-        const sizes = [1000, 1250, 1500, 1750, 2000];
-        const currentVal = tankSizeSelect.value;
-        tankSizeSelect.innerHTML = '';
-        sizes.forEach(s => {
-            const opt = new Option(`${s} Gallons`, s);
-            if (s === size) { opt.textContent += ' (Recommended)'; opt.selected = true; }
-            tankSizeSelect.add(opt);
-        });
-        if (currentVal && sizes.includes(parseInt(currentVal))) tankSizeSelect.value = currentVal;
-    }
+.stepper { display: flex; justify-content: space-between; margin: 0 auto 2.5rem auto; max-width: 500px; position: relative; }
+.stepper::before { content: ''; position: absolute; top: 1.25rem; left: 0; right: 0; height: 2px; background-color: var(--border-color); z-index: 1; transform: translateY(-50%); }
+.step { display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; z-index: 2; background-color: var(--background); padding: 0 0.5rem; }
+.step-number { width: 2.5rem; height: 2.5rem; border-radius: 50%; background-color: var(--surface-main); border: 2px solid var(--border-color); color: var(--text-secondary); display: grid; place-items: center; font-weight: 700; font-family: var(--font-headings); transition: all 0.3s ease; }
+.step-label { margin-top: 0.5rem; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); transition: all 0.3s ease; }
+.step.active .step-number { background-color: var(--brand-accent); border-color: var(--brand-accent); color: var(--text-on-primary); }
+.step.active .step-label { color: var(--text-main); }
 
-    function goToPanel(num) {
-        appState.currentPanel = num;
-        document.querySelectorAll('.form-panel').forEach(p => p.classList.remove('active'));
-        if (panels[num]) panels[num].classList.add('active');
-        document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-        if (steps[num]) steps[num].classList.add('active');
-        for (let i = 1; i < num; i++) if(steps[i]) steps[i].classList.add('active');
-    }
+/* === FORMS & INPUTS === */
+.form-panel { display: none; }
+.form-panel.active { display: block; animation: subtleFadeInUp 0.5s ease; }
+.panel-title { font-family: var(--font-headings); text-align: center; margin-bottom: 2rem; }
+.form-block { margin-bottom: 2rem; }
+.form-block legend { font-family: var(--font-headings); font-weight: 600; font-size: 1.1rem; margin-bottom: 1rem; color: var(--brand-primary); padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); width: 100%; }
+.form-hint { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.75rem; }
+.form-group { margin-bottom: 1rem; }
+.form-group:last-child { margin-bottom: 0; }
+.form-group-split { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.form-group label { display: block; font-weight: 500; font-size: 0.9rem; margin-bottom: 0.5rem; }
 
-    function handleFormSubmit(e) {
-        e.preventDefault();
-        const results = calculateEstimate();
-        if (results) displayResults(results);
-    }
-    
-    function displayResults(results) {
-        const format = (num) => `$${Math.round(num).toLocaleString()}`;
-        resultsSummaryText.textContent = results.title;
-        resultsRange.textContent = `${format(results.range[0])} - ${format(results.range[1])}`;
-        resultsBreakdown.innerHTML = results.breakdown.map(item => `<div class="breakdown-item fade-in-up"><span class="label">${item.label}</span><span class="value">${item.value}</span></div>`).join('');
-        resultsNotes.innerHTML = results.notes.map(note => `<p>${note}</p>`).join('');
-        
-        goToPanel(3);
-        resultsPlaceholder.classList.add('hidden');
-        resultsOutput.classList.remove('hidden');
-        resultsBreakdown.querySelectorAll('.breakdown-item').forEach((item, index) => item.style.animationDelay = `${index * 80}ms`);
-    }
+select, input[type="text"] {
+  width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--border-color); border-radius: var(--border-radius); font-size: 1rem; font-family: var(--font-primary); background-color: var(--surface-main); transition: all 0.2s ease;
+}
+select:focus, input:focus { outline: none; border-color: var(--brand-accent); box-shadow: 0 0 0 3px rgba(0, 121, 107, 0.2); }
 
-    function resetCalculator() {
-        appState = { workType: null, currentPanel: 1 };
-        form.reset();
-        selectionCards.forEach(card => card.classList.remove('selected'));
-        manageFormInputs(null);
-        resultsOutput.classList.add('hidden');
-        resultsPlaceholder.classList.remove('hidden');
-        systemInfoBox.classList.add('hidden');
-        handleSoilChange();
-        goToPanel(1);
-    }
+/* === CHECKBOX ALIGNMENT FIX === */
+.form-group-checkbox { display: flex; align-items: center; padding: 0.75rem; border-radius: var(--border-radius); transition: background-color 0.2s ease; }
+.form-group-checkbox:hover { background-color: var(--surface-secondary); }
+.form-group-checkbox input[type="checkbox"] {
+    width: 1.25em;
+    height: 1.25em;
+    margin: 0 0.75rem 0 0;
+    flex-shrink: 0;
+    accent-color: var(--brand-accent);
+}
+.form-group-checkbox label { margin-bottom: 0; font-weight: 500; cursor: pointer; }
 
-    function generatePdf() {
-        if (typeof html2pdf === 'undefined') {
-            console.error('html2pdf library is not loaded. Cannot generate PDF.');
-            alert('Sorry, the PDF generation library could not be loaded. Please check your internet connection and try again.');
-            return;
-        }
-        const element = document.getElementById('results-output');
-        const buttonsToHide = element.querySelectorAll('.no-print');
-        buttonsToHide.forEach(btn => btn.style.display = 'none');
-        const date = new Date().toISOString().slice(0, 10);
-        const filename = `septic-quote-${appState.workType}-${date}.pdf`;
-        const options = {
-            margin:       [0.5, 0.5, 0.5, 0.5], filename:     filename,
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2, useCORS: true },
-            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-        };
-        html2pdf().set(options).from(element).save().finally(() => {
-            buttonsToHide.forEach(btn => btn.style.display = '');
-        });
-    }
-    
-    function calculateEstimate() {
-        const data = Object.fromEntries(new FormData(form).entries());
-        if (!data.state) { alert('Please select a state.'); return null; }
-        switch (appState.workType) {
-            case 'installation': return calculateInstallation(data);
-            case 'repair': return calculateShared(data, 'repair');
-            case 'maintenance': return calculateShared(data, 'maintenance');
-        }
-    }
-    
-    function calculateInstallation(data) {
-        const { state, 'area-type': area, 'water-usage': water, 'soil-type': soil, 'system-type': systemKey } = data;
-        if (!soil || !systemKey) { alert('Please fill out all site and system fields.'); return null; }
-        const system = septicData.systems[systemKey];
-        const stateData = regionalData[state] || regionalData.default;
-        let low = 0, high = 0;
-        const breakdown = [];
-        for (const [key, value] of Object.entries(system.cost_breakdown)) {
-            low += value[0]; high += value[1];
-            const label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-            breakdown.push({ label, value: `$${value[0].toLocaleString()} - $${value[1].toLocaleString()}` });
-        }
-        const waterMultiplier = { low: 0.95, average: 1.0, high: 1.10 }[water];
-        const areaMultiplier = { rural: 0.9, suburban: 1.0, urban: 1.15 }[area];
-        low = low * waterMultiplier * stateData.multiplier * areaMultiplier;
-        high = high * waterMultiplier * stateData.multiplier * areaMultiplier;
-        const notes = [
-            `Costs are adjusted for the state of <strong>${stateData.name}</strong> and a <strong>${area}</strong> area type.`,
-            `A <strong>${water} water usage</strong> adjustment of <strong>${waterMultiplier}x</strong> has been applied.`,
-            '<strong>Disclaimer:</strong> This is an advanced budget estimation. A formal quote requires a professional site evaluation and soil (percolation) test.'
-        ];
-        return { title: `Estimate for a New ${system.name}`, range: [low, high], breakdown, notes };
-    }
-    
-    function calculateShared(data, type) {
-        const stateData = regionalData[data.state] || regionalData.default;
-        const areaMultiplier = { rural: 0.9, suburban: 1.0, urban: 1.15 }[data['area-type']];
-        const selectedItems = Array.from(form.querySelectorAll(`input[name="${type}-item"]:checked`)).map(cb => cb.value);
-        if (selectedItems.length === 0) { alert(`Please select at least one ${type} item.`); return null; }
-        let low = 0, high = 0;
-        const breakdown = [];
-        selectedItems.forEach(key => {
-            const item = septicData[type][key];
-            low += item.min; high += item.max;
-            breakdown.push({ label: item.name, value: `$${item.min} - $${item.max}` });
-        });
-        return {
-            title: `Estimate for System ${type.charAt(0).toUpperCase() + type.slice(1)}`,
-            range: [low * stateData.multiplier * areaMultiplier, high * stateData.multiplier * areaMultiplier],
-            breakdown,
-            notes: [`Costs are adjusted for <strong>${stateData.name}</strong> and a <strong>${data['area-type']}</strong> area type.`]
-        };
-    }
-    
-    // --- START THE ENGINE ---
-    initializeApp();
-});
+/* === CARDS & BUTTONS === */
+.card-selection-container { display: grid; gap: 1rem; }
+.selection-card { padding: 1.5rem; border: 2px solid var(--border-color); border-radius: var(--border-radius); cursor: pointer; transition: all 0.2s ease-out; background-color: var(--surface-main); }
+.selection-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: #c7d2fe; }
+.selection-card.selected { border-color: var(--brand-accent); box-shadow: 0 0 0 3px rgba(0, 121, 107, 0.2); transform: translateY(-4px); }
+.selection-card h4 { font-family: var(--font-headings); margin-bottom: 0.25rem; color: var(--brand-primary); }
+.selection-card p { font-size: 0.9rem; color: var(--text-secondary); }
+
+.panel-navigation { margin-top: 2rem; display: flex; justify-content: space-between; }
+.button { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.85rem 1.5rem; border: none; border-radius: var(--border-radius); font-family: var(--font-headings); font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s ease-out; background-color: var(--brand-accent); color: white; text-align: center; }
+.button:hover { background-color: var(--brand-accent-dark); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.button.secondary-button { background-color: var(--text-secondary); }
+.button.secondary-button:hover { background-color: #475569; }
+.button.full-width { width: 100%; }
+
+/* === RESULTS SIDEBAR === */
+.placeholder-content { text-align: center; padding: 3rem 1rem; }
+.price-range { font-family: var(--font-headings); font-size: 2.5rem; color: var(--brand-primary); text-align: center; margin-bottom: 1.5rem; }
+.sidebar-title { text-align: center; color: var(--text-secondary); font-weight: 600; margin-bottom: 0.25rem; }
+.breakdown-section, .notes-section { margin-top: 2rem; }
+#system-info-box { background-color: #e0f2f1; padding: 1rem; border-radius: var(--border-radius); margin-bottom: 2rem; border-left: 4px solid var(--brand-accent); }
+#system-info-box h4 { font-family: var(--font-headings); margin-bottom: 0.5rem; color: var(--brand-accent-dark); }
+#system-info-box p { font-size: 0.9rem; color: #004d40; }
+.breakdown-section h4, .notes-section h4 { font-family: var(--font-headings); color: var(--brand-primary); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1rem; }
+.breakdown-item { display: flex; justify-content: space-between; padding: 0.6rem 0; border-bottom: 1px solid #f1f5f9; }
+.breakdown-item:last-child { border-bottom: none; }
+.breakdown-item .label { color: var(--text-secondary); }
+.breakdown-item .value { font-weight: 500; }
+.notes-section p { font-size: 0.9rem; background-color: var(--surface-secondary); padding: 1rem; border-radius: 0.5rem; margin-bottom: 0.5rem; }
+
+.results-actions {
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* === RESPONSIVE DESIGN === */
+@media (min-width: 992px) {
+  .app-layout { grid-template-columns: minmax(0, 650px) 1fr; }
+  .app-main { padding: 3rem; }
+  .app-sidebar { padding: 3rem; border-top: none; border-left: 1px solid var(--border-color); position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .card-selection-container { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* === PDF & PRINT STYLES === */
+/* These styles are applied via JS only during PDF generation */
+.pdf-render-mode .sidebar-title,
+.pdf-render-mode .breakdown-item .label {
+    color: var(--text-main);
+    font-weight: 600;
+}
+
+.pdf-render-mode .price-range {
+    color: var(--text-main);
+}
+
+.pdf-render-mode .notes-section p {
+    color: var(--text-main);
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+}
+
+.pdf-render-mode #system-info-box {
+    border: 1px solid var(--brand-accent-dark);
+    background-color: #f0fdfa; /* A very light teal */
+}
