@@ -148,16 +148,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function displayResults(results) {
-        const format = (num) => `$${Math.round(num).toLocaleString()}`;
-        resultsSummaryText.textContent = results.title;
-        resultsRange.textContent = `${format(results.range[0])} - ${format(results.range[1])}`;
-        resultsBreakdown.innerHTML = results.breakdown.map(item => `<div class="breakdown-item fade-in-up"><span class="label">${item.label}</span><span class="value">${item.value}</span></div>`).join('');
-        resultsNotes.innerHTML = results.notes.map(note => `<p>${note}</p>`).join('');
-        goToPanel(3);
-        resultsPlaceholder.classList.add('hidden');
-        resultsOutput.classList.remove('hidden');
-        resultsBreakdown.querySelectorAll('.breakdown-item').forEach((item, index) => item.style.animationDelay = `${index * 80}ms`);
-    }
+    const format = (num) => `$${Math.round(num).toLocaleString()}`;
+    resultsSummaryText.textContent = results.title;
+    resultsRange.textContent = `${format(results.range[0])} - ${format(results.range[1])}`;
+    
+    // 🚨 Removed "fade-in-up" class here
+    resultsBreakdown.innerHTML = results.breakdown.map(item => 
+        `<div class="breakdown-item">
+            <span class="label">${item.label}</span>
+            <span class="value">${item.value}</span>
+        </div>`
+    ).join('');
+
+    resultsNotes.innerHTML = results.notes.map(note => `<p>${note}</p>`).join('');
+    goToPanel(3);
+    resultsPlaceholder.classList.add('hidden');
+    resultsOutput.classList.remove('hidden');
+}
+
 
     function resetCalculator() {
         appState = { workType: null, currentPanel: 1 };
