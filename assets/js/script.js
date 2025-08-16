@@ -1,8 +1,7 @@
 /**
- * Septic System Estimator - Definitive Script v4.4 (Definitive Validation Fix)
- * Description: A complete rewrite of the form state management to definitively fix the
- * "Generate Quote" button for Repair/Maintenance. This version robustly disables
- * inputs in all hidden sections to prevent HTML5 validation conflicts.
+ * Septic System Estimator - Definitive Script v4.5 (Final Validation Fix)
+ * Description: Paired with corrected HTML, this script now definitively fixes the
+ * "Generate Quote" button by correctly disabling inputs in consistently-structured hidden sections.
  */
 document.addEventListener('DOMContentLoaded', () => {
     // State and Data
@@ -64,21 +63,16 @@ document.addEventListener('DOMContentLoaded', () => {
         maintenanceOptionsContainer.innerHTML = Object.entries(septicData.maintenance).map(([key, item]) => createCheckbox(key, item, 'maintenance')).join('');
     }
 
-    // --- NEW: Centralized Input Management Function ---
+    // --- Centralized Input Management Function ---
     function manageFormInputs(activeWorkType) {
-        // Loop through all conditional question groups
         for (const type in questionGroups) {
             const group = questionGroups[type];
             const inputs = group.querySelectorAll('input, select');
             
-            // Check if the current group is the active one
             if (type === activeWorkType) {
-                // If it is the active group, show it and enable all its inputs.
                 group.classList.remove('hidden');
                 inputs.forEach(input => input.disabled = false);
             } else {
-                // If it's not active, hide it and disable all its inputs.
-                // This is the CRITICAL step that prevents validation errors.
                 group.classList.add('hidden');
                 inputs.forEach(input => input.disabled = true);
             }
@@ -103,7 +97,6 @@ document.addEventListener('DOMContentLoaded', () => {
         selectionCards.forEach(card => card.classList.remove('selected'));
         e.currentTarget.classList.add('selected');
         
-        // **RELIABLE FIX**: Call the centralized function to manage visibility and disabled states.
         manageFormInputs(appState.workType);
         
         const titles = { installation: 'New Installation Profile', repair: 'Repair Details', maintenance: 'Maintenance Details' };
@@ -179,10 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
         appState = { workType: null, currentPanel: 1 };
         form.reset();
         selectionCards.forEach(card => card.classList.remove('selected'));
-        
-        // After reset, ensure all conditional fields are hidden and disabled again.
         manageFormInputs(null);
-
         resultsOutput.classList.add('hidden');
         resultsPlaceholder.classList.remove('hidden');
         systemInfoBox.classList.add('hidden');
@@ -196,11 +186,9 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Sorry, the PDF generation library could not be loaded. Please check your internet connection and try again.');
             return;
         }
-
         const element = document.getElementById('results-output');
         const buttonsToHide = element.querySelectorAll('.no-print');
         buttonsToHide.forEach(btn => btn.style.display = 'none');
-        
         const date = new Date().toISOString().slice(0, 10);
         const filename = `septic-quote-${appState.workType}-${date}.pdf`;
         const options = {
@@ -209,7 +197,6 @@ document.addEventListener('DOMContentLoaded', () => {
             html2canvas:  { scale: 2, useCORS: true },
             jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
         };
-        
         html2pdf().set(options).from(element).save().finally(() => {
             buttonsToHide.forEach(btn => btn.style.display = '');
         });
@@ -228,7 +215,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function calculateInstallation(data) {
         const { state, 'area-type': area, 'water-usage': water, 'soil-type': soil, 'system-type': systemKey } = data;
         if (!soil || !systemKey) { alert('Please fill out all site and system fields.'); return null; }
-
         const system = septicData.systems[systemKey];
         const stateData = regionalData[state] || regionalData.default;
         let low = 0, high = 0;
@@ -238,12 +224,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
             breakdown.push({ label, value: `$${value[0].toLocaleString()} - $${value[1].toLocaleString()}` });
         }
-        
         const waterMultiplier = { low: 0.95, average: 1.0, high: 1.10 }[water];
         const areaMultiplier = { rural: 0.9, suburban: 1.0, urban: 1.15 }[area];
         low = low * waterMultiplier * stateData.multiplier * areaMultiplier;
         high = high * waterMultiplier * stateData.multiplier * areaMultiplier;
-        
         const notes = [
             `Costs are adjusted for the state of <strong>${stateData.name}</strong> and a <strong>${area}</strong> area type.`,
             `A <strong>${water} water usage</strong> adjustment of <strong>${waterMultiplier}x</strong> has been applied.`,
@@ -255,11 +239,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function calculateShared(data, type) {
         const stateData = regionalData[data.state] || regionalData.default;
         const areaMultiplier = { rural: 0.9, suburban: 1.0, urban: 1.15 }[data['area-type']];
-        
-        // This query now works because the correct inputs are enabled.
         const selectedItems = Array.from(form.querySelectorAll(`input[name="${type}-item"]:checked`)).map(cb => cb.value);
         if (selectedItems.length === 0) { alert(`Please select at least one ${type} item.`); return null; }
-
         let low = 0, high = 0;
         const breakdown = [];
         selectedItems.forEach(key => {
@@ -267,7 +248,6 @@ document.addEventListener('DOMContentLoaded', () => {
             low += item.min; high += item.max;
             breakdown.push({ label: item.name, value: `$${item.min} - $${item.max}` });
         });
-
         return {
             title: `Estimate for System ${type.charAt(0).toUpperCase() + type.slice(1)}`,
             range: [low * stateData.multiplier * areaMultiplier, high * stateData.multiplier * areaMultiplier],
