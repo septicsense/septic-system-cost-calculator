@@ -1,7 +1,7 @@
 /**
- * Septic System Estimator - Definitive Script v4.1 (PDF Download)
- * Description: Final version with added Area Type multiplier for enhanced accuracy,
- * logic to populate all repair/maintenance options dynamically, and PDF download functionality.
+ * Septic System Estimator - Definitive Script v4.2 (Robust PDF Download)
+ * Description: Fixes the PDF download button by adding a check to ensure the
+ * html2pdf library is loaded, providing user feedback if it fails.
  */
 document.addEventListener('DOMContentLoaded', () => {
     // State and Data
@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const tankSizeSelect = document.getElementById('tank-size');
     const bedroomsSelect = document.getElementById('bedrooms');
     const peopleSelect = document.getElementById('people');
-    const downloadPdfBtn = document.getElementById('download-pdf-btn'); // New Button
+    const downloadPdfBtn = document.getElementById('download-pdf-btn');
     
     // --- INITIALIZATION ---
     async function initializeApp() {
@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
         systemTypeSelect.addEventListener('change', () => displaySystemInfo(systemTypeSelect.value));
         bedroomsSelect.addEventListener('change', recommendTankSize);
         peopleSelect.addEventListener('change', recommendTankSize);
-        downloadPdfBtn.addEventListener('click', generatePdf); // New Listener
+        downloadPdfBtn.addEventListener('click', generatePdf);
     }
     
     function handleWorkTypeSelection(e) {
@@ -161,8 +161,15 @@ document.addEventListener('DOMContentLoaded', () => {
         goToPanel(1);
     }
 
-    // --- PDF GENERATION ---
+    // --- PDF GENERATION (ROBUST VERSION) ---
     function generatePdf() {
+        // **FIX**: Check if the html2pdf library is loaded before using it.
+        if (typeof html2pdf === 'undefined') {
+            console.error('html2pdf library is not loaded. Cannot generate PDF.');
+            alert('Sorry, the PDF generation library could not be loaded. Please check your internet connection and try again.');
+            return; // Stop the function here
+        }
+
         const element = document.getElementById('results-output');
         const buttonsToHide = element.querySelectorAll('.no-print');
         
@@ -180,8 +187,8 @@ document.addEventListener('DOMContentLoaded', () => {
             jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
         };
 
-        // Generate the PDF and then show the buttons again
-        html2pdf().set(options).from(element).save().then(() => {
+        // Generate the PDF and then show the buttons again, even if there's an error.
+        html2pdf().set(options).from(element).save().finally(() => {
             buttonsToHide.forEach(btn => btn.style.display = ''); // Reset display style
         });
     }
