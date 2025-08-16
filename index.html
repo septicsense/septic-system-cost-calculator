@@ -55,7 +55,6 @@
                                 <label for="state">U.S. State</label>
                                 <select id="state" name="state" required></select>
                             </div>
-                            <!-- === THIS IS THE NEW AREA TYPE SELECTOR === -->
                             <div class="form-group">
                                 <label for="area-type">Area Type</label>
                                 <select id="area-type" name="area-type" required>
@@ -85,15 +84,20 @@
                         </fieldset>
                     </div>
                     
-                    <fieldset id="repair-questions" class="form-block hidden">
-                        <legend>Select Required Repairs</legend>
-                        <div id="repair-options-container"></div>
-                    </fieldset>
+                    <!-- === DEFINITIVE HTML FIX: Wrapper divs added for consistency === -->
+                    <div id="repair-questions" class="hidden">
+                        <fieldset class="form-block">
+                            <legend>Select Required Repairs</legend>
+                            <div id="repair-options-container"></div>
+                        </fieldset>
+                    </div>
                     
-                    <fieldset id="maintenance-questions" class="form-block hidden">
-                        <legend>Select Maintenance Tasks</legend>
-                        <div id="maintenance-options-container"></div>
-                    </fieldset>
+                    <div id="maintenance-questions" class="hidden">
+                        <fieldset class="form-block">
+                            <legend>Select Maintenance Tasks</legend>
+                            <div id="maintenance-options-container"></div>
+                        </fieldset>
+                    </div>
                     
                     <div class="panel-navigation"><button type="button" class="button secondary-button" id="back-btn-2">← Back</button><button type="submit" class="button" id="calculate-btn">Generate Quote →</button></div>
                 </div>
@@ -107,7 +111,6 @@
                 <div class="breakdown-section"><h4>Hyper-Detailed Cost Breakdown</h4><div id="results-breakdown" class="stagger-children"></div></div>
                 <div class="notes-section"><h4>Expert Notes</h4><div id="results-notes"></div></div>
                 
-                <!-- Action Buttons Wrapper -->
                 <div class="results-actions">
                     <button type="button" id="download-pdf-btn" class="button full-width no-print">Download Quote (PDF)</button>
                     <button type="button" id="start-over-btn" class="button secondary-button full-width no-print">Start New Estimate</button>
