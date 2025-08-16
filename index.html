@@ -15,6 +15,9 @@
     <link rel="stylesheet" href="assets/css/styles.css">
     <link rel="stylesheet" href="assets/css/animations.css">
     
+    <!-- PDF Generation Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
     <script src="assets/js/script.js" defer></script>
 </head>
 <body>
@@ -82,7 +85,6 @@
                         </fieldset>
                     </div>
                     
-                    <!-- === CORRECTED PLACEMENT AND STRUCTURE FOR REPAIR/MAINTENANCE === -->
                     <fieldset id="repair-questions" class="form-block hidden">
                         <legend>Select Required Repairs</legend>
                         <div id="repair-options-container"></div>
@@ -104,7 +106,12 @@
                 <h3 class="sidebar-title" id="results-summary-text">Estimate</h3><h2 class="price-range" id="results-range">$0 - $0</h2>
                 <div class="breakdown-section"><h4>Hyper-Detailed Cost Breakdown</h4><div id="results-breakdown" class="stagger-children"></div></div>
                 <div class="notes-section"><h4>Expert Notes</h4><div id="results-notes"></div></div>
-                <button type="button" id="start-over-btn" class="button secondary-button full-width">Start New Estimate</button>
+                
+                <!-- Action Buttons Wrapper -->
+                <div class="results-actions">
+                    <button type="button" id="download-pdf-btn" class="button full-width no-print">Download Quote (PDF)</button>
+                    <button type="button" id="start-over-btn" class="button secondary-button full-width no-print">Start New Estimate</button>
+                </div>
             </div>
         </div></div>
     </div>
