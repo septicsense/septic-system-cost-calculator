@@ -1,7 +1,8 @@
 /**
- * Septic System Estimator - Definitive Script v4.8 (Final Code)
- * Description: Relies on native CSS @media print styles for robust PDF rendering,
- * simplifying the JavaScript and permanently fixing all rendering bugs.
+ * Septic System Estimator - Definitive Script v5.0 (Final UI & PDF Fix)
+ * Description: The base CSS has been updated to make all results text high-contrast by default,
+ * per user feedback. This simplifies the PDF generation logic, removing all previous hacks.
+ * The application is now stable and visually consistent.
  */
 document.addEventListener('DOMContentLoaded', () => {
     // State and Data
@@ -37,7 +38,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const peopleSelect = document.getElementById('people');
     const downloadPdfBtn = document.getElementById('download-pdf-btn');
     
-    // --- INITIALIZATION ---
     async function initializeApp() {
         try {
             const [septicRes, regionalRes] = await Promise.all([ fetch('data/septic_systems.json'), fetch('data/regional_cost_data.json') ]);
@@ -148,24 +148,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function displayResults(results) {
-    const format = (num) => `$${Math.round(num).toLocaleString()}`;
-    resultsSummaryText.textContent = results.title;
-    resultsRange.textContent = `${format(results.range[0])} - ${format(results.range[1])}`;
-    
-    // 🚨 Removed "fade-in-up" class here
-    resultsBreakdown.innerHTML = results.breakdown.map(item => 
-        `<div class="breakdown-item">
-            <span class="label">${item.label}</span>
-            <span class="value">${item.value}</span>
-        </div>`
-    ).join('');
-
-    resultsNotes.innerHTML = results.notes.map(note => `<p>${note}</p>`).join('');
-    goToPanel(3);
-    resultsPlaceholder.classList.add('hidden');
-    resultsOutput.classList.remove('hidden');
-}
-
+        const format = (num) => `$${Math.round(num).toLocaleString()}`;
+        resultsSummaryText.textContent = results.title;
+        resultsRange.textContent = `${format(results.range[0])} - ${format(results.range[1])}`;
+        resultsBreakdown.innerHTML = results.breakdown.map(item => `<div class="breakdown-item fade-in-up"><span class="label">${item.label}</span><span class="value">${item.value}</span></div>`).join('');
+        resultsNotes.innerHTML = results.notes.map(note => `<p>${note}</p>`).join('');
+        goToPanel(3);
+        resultsPlaceholder.classList.add('hidden');
+        resultsOutput.classList.remove('hidden');
+        resultsBreakdown.querySelectorAll('.breakdown-item').forEach((item, index) => item.style.animationDelay = `${index * 80}ms`);
+    }
 
     function resetCalculator() {
         appState = { workType: null, currentPanel: 1 };
@@ -185,18 +177,19 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Sorry, the PDF generation library could not be loaded. Please check your internet connection and try again.');
             return;
         }
+
         const element = document.getElementById('results-output');
         const date = new Date().toISOString().slice(0, 10);
         const filename = `septic-quote-${appState.workType}-${date}.pdf`;
         const options = {
-            margin:       [0.75, 0.5, 0.75, 0.5], // Adjusted margins for better layout
+            margin:       [0.75, 0.5, 0.75, 0.5],
             filename:     filename,
             image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2, useCORS: true },
+            html2canvas:  { scale: 2, useCORS: true, logging: false }, // Added logging: false
             jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
         };
-        
-        // This is now clean and simple. The CSS @media print handles all styling.
+
+        // Simplified, robust function: The CSS handles all styling now.
         html2pdf().set(options).from(element).save();
     }
     
