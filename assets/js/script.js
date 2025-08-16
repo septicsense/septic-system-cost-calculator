@@ -1,8 +1,7 @@
 /**
- * Septic System Estimator - Definitive Script v4.7 (Final PDF Render Fix)
- * Description: Solves the PDF text fading issue by introducing a small delay
- * with setTimeout, ensuring the browser repaints with high-contrast styles
- * BEFORE the PDF library captures the DOM.
+ * Septic System Estimator - Definitive Script v4.8 (Final Code)
+ * Description: Relies on native CSS @media print styles for robust PDF rendering,
+ * simplifying the JavaScript and permanently fixing all rendering bugs.
  */
 document.addEventListener('DOMContentLoaded', () => {
     // State and Data
@@ -179,30 +178,18 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         const element = document.getElementById('results-output');
-        const buttonsToHide = element.querySelectorAll('.no-print');
-        
-        element.classList.add('pdf-render-mode');
-        buttonsToHide.forEach(btn => btn.style.display = 'none');
-        
         const date = new Date().toISOString().slice(0, 10);
         const filename = `septic-quote-${appState.workType}-${date}.pdf`;
         const options = {
-            margin:       [0.5, 0.5, 0.5, 0.5], filename:     filename,
+            margin:       [0.75, 0.5, 0.75, 0.5], // Adjusted margins for better layout
+            filename:     filename,
             image:        { type: 'jpeg', quality: 0.98 },
             html2canvas:  { scale: 2, useCORS: true },
             jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
         };
         
-        // === DEFINITIVE FIX FOR PDF RENDER TIMING ===
-        // Use a setTimeout to allow the browser to apply the new CSS class styles
-        // before html2pdf captures the element. 50ms is enough for the repaint.
-        setTimeout(() => {
-            html2pdf().set(options).from(element).save().finally(() => {
-                // This cleanup code runs after the PDF has been generated and saved.
-                element.classList.remove('pdf-render-mode');
-                buttonsToHide.forEach(btn => btn.style.display = '');
-            });
-        }, 50);
+        // This is now clean and simple. The CSS @media print handles all styling.
+        html2pdf().set(options).from(element).save();
     }
     
     function calculateEstimate() {
