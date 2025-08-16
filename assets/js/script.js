@@ -1,7 +1,8 @@
 /**
- * Septic System Estimator - Definitive Script v4.3 (Form Validation Fix)
- * Description: Fixes the non-functional "Generate Quote" button for Repair/Maintenance
- * by programmatically disabling inputs in hidden sections to prevent validation errors.
+ * Septic System Estimator - Definitive Script v4.4 (Definitive Validation Fix)
+ * Description: A complete rewrite of the form state management to definitively fix the
+ * "Generate Quote" button for Repair/Maintenance. This version robustly disables
+ * inputs in all hidden sections to prevent HTML5 validation conflicts.
  */
 document.addEventListener('DOMContentLoaded', () => {
     // State and Data
@@ -46,10 +47,8 @@ document.addEventListener('DOMContentLoaded', () => {
             regionalData = await regionalRes.json();
             populateStaticUI();
             setupEventListeners();
-            // Disable all conditional fields on load
-            Object.values(questionGroups).forEach(group => {
-                group.querySelectorAll('input, select').forEach(el => el.disabled = true);
-            });
+            // On page load, disable all conditional inputs by default.
+            manageFormInputs(null);
         } catch (error) {
             console.error("Initialization Fatal Error:", error);
             document.querySelector('.app-main').innerHTML = `<p style="color:red; text-align:center;">A critical error occurred. Please ensure 'data/septic_systems.json' and 'data/regional_cost_data.json' are accessible.</p>`;
@@ -63,6 +62,27 @@ document.addEventListener('DOMContentLoaded', () => {
         const createCheckbox = (key, item, type) => `<div class="form-group-checkbox"><input type="checkbox" id="${type}-${key}" name="${type}-item" value="${key}"><label for="${type}-${key}">${item.name}</label></div>`;
         repairOptionsContainer.innerHTML = Object.entries(septicData.repair).map(([key, item]) => createCheckbox(key, item, 'repair')).join('');
         maintenanceOptionsContainer.innerHTML = Object.entries(septicData.maintenance).map(([key, item]) => createCheckbox(key, item, 'maintenance')).join('');
+    }
+
+    // --- NEW: Centralized Input Management Function ---
+    function manageFormInputs(activeWorkType) {
+        // Loop through all conditional question groups
+        for (const type in questionGroups) {
+            const group = questionGroups[type];
+            const inputs = group.querySelectorAll('input, select');
+            
+            // Check if the current group is the active one
+            if (type === activeWorkType) {
+                // If it is the active group, show it and enable all its inputs.
+                group.classList.remove('hidden');
+                inputs.forEach(input => input.disabled = false);
+            } else {
+                // If it's not active, hide it and disable all its inputs.
+                // This is the CRITICAL step that prevents validation errors.
+                group.classList.add('hidden');
+                inputs.forEach(input => input.disabled = true);
+            }
+        }
     }
 
     // --- UI & EVENT HANDLING ---
@@ -83,18 +103,8 @@ document.addEventListener('DOMContentLoaded', () => {
         selectionCards.forEach(card => card.classList.remove('selected'));
         e.currentTarget.classList.add('selected');
         
-        // **VALIDATION FIX**: Disable all conditional inputs first.
-        Object.values(questionGroups).forEach(group => {
-            group.classList.add('hidden');
-            group.querySelectorAll('input, select').forEach(el => el.disabled = true);
-        });
-
-        // **VALIDATION FIX**: Enable inputs ONLY for the selected group.
-        if (questionGroups[appState.workType]) {
-            const activeGroup = questionGroups[appState.workType];
-            activeGroup.classList.remove('hidden');
-            activeGroup.querySelectorAll('input, select').forEach(el => el.disabled = false);
-        }
+        // **RELIABLE FIX**: Call the centralized function to manage visibility and disabled states.
+        manageFormInputs(appState.workType);
         
         const titles = { installation: 'New Installation Profile', repair: 'Repair Details', maintenance: 'Maintenance Details' };
         panel2Title.textContent = titles[appState.workType] || 'Details';
@@ -106,6 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const soilType = soilTypeSelect.value;
         systemTypeSelect.innerHTML = '<option value="" disabled selected>Select system...</option>';
         systemInfoBox.classList.add('hidden');
+        if (!soilType) return;
         for (const key in septicData.systems) {
             const system = septicData.systems[key];
             if (system.soil_compatibility.includes(soilType)) systemTypeSelect.add(new Option(system.name, key));
@@ -167,11 +178,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function resetCalculator() {
         appState = { workType: null, currentPanel: 1 };
         form.reset();
-        // After reset, re-disable all conditional fields
-        Object.values(questionGroups).forEach(group => {
-            group.querySelectorAll('input, select').forEach(el => el.disabled = true);
-        });
         selectionCards.forEach(card => card.classList.remove('selected'));
+        
+        // After reset, ensure all conditional fields are hidden and disabled again.
+        manageFormInputs(null);
+
         resultsOutput.classList.add('hidden');
         resultsPlaceholder.classList.remove('hidden');
         systemInfoBox.classList.add('hidden');
@@ -179,7 +190,6 @@ document.addEventListener('DOMContentLoaded', () => {
         goToPanel(1);
     }
 
-    // --- PDF GENERATION (ROBUST VERSION) ---
     function generatePdf() {
         if (typeof html2pdf === 'undefined') {
             console.error('html2pdf library is not loaded. Cannot generate PDF.');
@@ -189,26 +199,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const element = document.getElementById('results-output');
         const buttonsToHide = element.querySelectorAll('.no-print');
-        
         buttonsToHide.forEach(btn => btn.style.display = 'none');
         
         const date = new Date().toISOString().slice(0, 10);
         const filename = `septic-quote-${appState.workType}-${date}.pdf`;
-        
         const options = {
-            margin:       [0.5, 0.5, 0.5, 0.5],
-            filename:     filename,
+            margin:       [0.5, 0.5, 0.5, 0.5], filename:     filename,
             image:        { type: 'jpeg', quality: 0.98 },
             html2canvas:  { scale: 2, useCORS: true },
             jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
         };
-
+        
         html2pdf().set(options).from(element).save().finally(() => {
             buttonsToHide.forEach(btn => btn.style.display = '');
         });
     }
     
-    // --- CALCULATION ENGINE ---
     function calculateEstimate() {
         const data = Object.fromEntries(new FormData(form).entries());
         if (!data.state) { alert('Please select a state.'); return null; }
@@ -225,7 +231,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const system = septicData.systems[systemKey];
         const stateData = regionalData[state] || regionalData.default;
-        
         let low = 0, high = 0;
         const breakdown = [];
         for (const [key, value] of Object.entries(system.cost_breakdown)) {
@@ -236,7 +241,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const waterMultiplier = { low: 0.95, average: 1.0, high: 1.10 }[water];
         const areaMultiplier = { rural: 0.9, suburban: 1.0, urban: 1.15 }[area];
-        
         low = low * waterMultiplier * stateData.multiplier * areaMultiplier;
         high = high * waterMultiplier * stateData.multiplier * areaMultiplier;
         
@@ -245,13 +249,14 @@ document.addEventListener('DOMContentLoaded', () => {
             `A <strong>${water} water usage</strong> adjustment of <strong>${waterMultiplier}x</strong> has been applied.`,
             '<strong>Disclaimer:</strong> This is an advanced budget estimation. A formal quote requires a professional site evaluation and soil (percolation) test.'
         ];
-
         return { title: `Estimate for a New ${system.name}`, range: [low, high], breakdown, notes };
     }
     
     function calculateShared(data, type) {
         const stateData = regionalData[data.state] || regionalData.default;
         const areaMultiplier = { rural: 0.9, suburban: 1.0, urban: 1.15 }[data['area-type']];
+        
+        // This query now works because the correct inputs are enabled.
         const selectedItems = Array.from(form.querySelectorAll(`input[name="${type}-item"]:checked`)).map(cb => cb.value);
         if (selectedItems.length === 0) { alert(`Please select at least one ${type} item.`); return null; }
 
@@ -273,4 +278,4 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // --- START THE ENGINE ---
     initializeApp();
-});    
+});
