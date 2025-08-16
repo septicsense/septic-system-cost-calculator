@@ -1,7 +1,7 @@
 /**
- * Septic System Estimator - Definitive Script v4.2 (Robust PDF Download)
- * Description: Fixes the PDF download button by adding a check to ensure the
- * html2pdf library is loaded, providing user feedback if it fails.
+ * Septic System Estimator - Definitive Script v4.3 (Form Validation Fix)
+ * Description: Fixes the non-functional "Generate Quote" button for Repair/Maintenance
+ * by programmatically disabling inputs in hidden sections to prevent validation errors.
  */
 document.addEventListener('DOMContentLoaded', () => {
     // State and Data
@@ -46,6 +46,10 @@ document.addEventListener('DOMContentLoaded', () => {
             regionalData = await regionalRes.json();
             populateStaticUI();
             setupEventListeners();
+            // Disable all conditional fields on load
+            Object.values(questionGroups).forEach(group => {
+                group.querySelectorAll('input, select').forEach(el => el.disabled = true);
+            });
         } catch (error) {
             console.error("Initialization Fatal Error:", error);
             document.querySelector('.app-main').innerHTML = `<p style="color:red; text-align:center;">A critical error occurred. Please ensure 'data/septic_systems.json' and 'data/regional_cost_data.json' are accessible.</p>`;
@@ -79,8 +83,18 @@ document.addEventListener('DOMContentLoaded', () => {
         selectionCards.forEach(card => card.classList.remove('selected'));
         e.currentTarget.classList.add('selected');
         
-        Object.values(questionGroups).forEach(group => group.classList.add('hidden'));
-        if (questionGroups[appState.workType]) questionGroups[appState.workType].classList.remove('hidden');
+        // **VALIDATION FIX**: Disable all conditional inputs first.
+        Object.values(questionGroups).forEach(group => {
+            group.classList.add('hidden');
+            group.querySelectorAll('input, select').forEach(el => el.disabled = true);
+        });
+
+        // **VALIDATION FIX**: Enable inputs ONLY for the selected group.
+        if (questionGroups[appState.workType]) {
+            const activeGroup = questionGroups[appState.workType];
+            activeGroup.classList.remove('hidden');
+            activeGroup.querySelectorAll('input, select').forEach(el => el.disabled = false);
+        }
         
         const titles = { installation: 'New Installation Profile', repair: 'Repair Details', maintenance: 'Maintenance Details' };
         panel2Title.textContent = titles[appState.workType] || 'Details';
@@ -153,6 +167,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function resetCalculator() {
         appState = { workType: null, currentPanel: 1 };
         form.reset();
+        // After reset, re-disable all conditional fields
+        Object.values(questionGroups).forEach(group => {
+            group.querySelectorAll('input, select').forEach(el => el.disabled = true);
+        });
         selectionCards.forEach(card => card.classList.remove('selected'));
         resultsOutput.classList.add('hidden');
         resultsPlaceholder.classList.remove('hidden');
@@ -163,17 +181,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- PDF GENERATION (ROBUST VERSION) ---
     function generatePdf() {
-        // **FIX**: Check if the html2pdf library is loaded before using it.
         if (typeof html2pdf === 'undefined') {
             console.error('html2pdf library is not loaded. Cannot generate PDF.');
             alert('Sorry, the PDF generation library could not be loaded. Please check your internet connection and try again.');
-            return; // Stop the function here
+            return;
         }
 
         const element = document.getElementById('results-output');
         const buttonsToHide = element.querySelectorAll('.no-print');
         
-        // Hide buttons before printing
         buttonsToHide.forEach(btn => btn.style.display = 'none');
         
         const date = new Date().toISOString().slice(0, 10);
@@ -187,9 +203,8 @@ document.addEventListener('DOMContentLoaded', () => {
             jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
         };
 
-        // Generate the PDF and then show the buttons again, even if there's an error.
         html2pdf().set(options).from(element).save().finally(() => {
-            buttonsToHide.forEach(btn => btn.style.display = ''); // Reset display style
+            buttonsToHide.forEach(btn => btn.style.display = '');
         });
     }
     
@@ -258,4 +273,4 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // --- START THE ENGINE ---
     initializeApp();
-});
+});    
