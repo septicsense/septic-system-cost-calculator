@@ -81,8 +81,17 @@
                             </div>
                         </fieldset>
                     </div>
-                    <div id="repair-questions" class="hidden"><fieldset class="form-block"><legend>Select Required Repairs</legend><div id="repair-options-container"></div></fieldset></div>
-                    <div id="maintenance-questions" class="hidden"><fieldset class="form-block"><legend>Select Maintenance Tasks</legend><div id="maintenance-options-container"></div></fieldset></div>
+                    
+                    <!-- === CORRECTED PLACEMENT AND STRUCTURE FOR REPAIR/MAINTENANCE === -->
+                    <fieldset id="repair-questions" class="form-block hidden">
+                        <legend>Select Required Repairs</legend>
+                        <div id="repair-options-container"></div>
+                    </fieldset>
+                    
+                    <fieldset id="maintenance-questions" class="form-block hidden">
+                        <legend>Select Maintenance Tasks</legend>
+                        <div id="maintenance-options-container"></div>
+                    </fieldset>
                     
                     <div class="panel-navigation"><button type="button" class="button secondary-button" id="back-btn-2">← Back</button><button type="submit" class="button" id="calculate-btn">Generate Quote →</button></div>
                 </div>
