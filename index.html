@@ -8,7 +8,7 @@
     
     <!-- Google Fonts: New Professional Font Pairing -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
     
     <!-- Stylesheets -->
@@ -84,7 +84,6 @@
                         </fieldset>
                     </div>
                     
-                    <!-- === DEFINITIVE HTML FIX: Wrapper divs added for consistency === -->
                     <div id="repair-questions" class="hidden">
                         <fieldset class="form-block">
                             <legend>Select Required Repairs</legend>
@@ -104,7 +103,14 @@
             </form>
         </div>
         <div class="app-sidebar"><div id="results-container">
-            <div id="results-placeholder"><div class="placeholder-content"><h3>Your Quote Will Appear Here</h3><p>Complete the steps on the left to generate your hyper-detailed cost estimate.</p></div></div>
+            <div id="results-placeholder">
+                <!-- === UI REVAMP: New Placeholder Content === -->
+                <div class="placeholder-content">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><path d="M12 14l-2-2 2-2"></path><path d="M12 14l2-2-2-2"></path></svg>
+                    <h3>Your Quote Will Appear Here</h3>
+                    <p>Complete the form on the left to generate your detailed cost analysis.</p>
+                </div>
+            </div>
             <div id="results-output" class="hidden">
                 <div id="system-info-box" class="hidden fade-in"><h4 id="system-info-title">System Information</h4><p id="system-info-description"></p></div>
                 <h3 class="sidebar-title" id="results-summary-text">Estimate</h3><h2 class="price-range" id="results-range">$0 - $0</h2>
