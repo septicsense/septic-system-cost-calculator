@@ -1,7 +1,7 @@
 /**
- * Septic System Estimator - Definitive Script v4.0 (Professional Polish)
+ * Septic System Estimator - Definitive Script v4.1 (PDF Download)
  * Description: Final version with added Area Type multiplier for enhanced accuracy,
- * and logic to populate all repair/maintenance options dynamically.
+ * logic to populate all repair/maintenance options dynamically, and PDF download functionality.
  */
 document.addEventListener('DOMContentLoaded', () => {
     // State and Data
@@ -35,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const tankSizeSelect = document.getElementById('tank-size');
     const bedroomsSelect = document.getElementById('bedrooms');
     const peopleSelect = document.getElementById('people');
+    const downloadPdfBtn = document.getElementById('download-pdf-btn'); // New Button
     
     // --- INITIALIZATION ---
     async function initializeApp() {
@@ -70,6 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
         systemTypeSelect.addEventListener('change', () => displaySystemInfo(systemTypeSelect.value));
         bedroomsSelect.addEventListener('change', recommendTankSize);
         peopleSelect.addEventListener('change', recommendTankSize);
+        downloadPdfBtn.addEventListener('click', generatePdf); // New Listener
     }
     
     function handleWorkTypeSelection(e) {
@@ -157,6 +159,31 @@ document.addEventListener('DOMContentLoaded', () => {
         systemInfoBox.classList.add('hidden');
         handleSoilChange();
         goToPanel(1);
+    }
+
+    // --- PDF GENERATION ---
+    function generatePdf() {
+        const element = document.getElementById('results-output');
+        const buttonsToHide = element.querySelectorAll('.no-print');
+        
+        // Hide buttons before printing
+        buttonsToHide.forEach(btn => btn.style.display = 'none');
+        
+        const date = new Date().toISOString().slice(0, 10);
+        const filename = `septic-quote-${appState.workType}-${date}.pdf`;
+        
+        const options = {
+            margin:       [0.5, 0.5, 0.5, 0.5],
+            filename:     filename,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true },
+            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+
+        // Generate the PDF and then show the buttons again
+        html2pdf().set(options).from(element).save().then(() => {
+            buttonsToHide.forEach(btn => btn.style.display = ''); // Reset display style
+        });
     }
     
     // --- CALCULATION ENGINE ---
