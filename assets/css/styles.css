@@ -6,8 +6,8 @@
   --surface-main: #ffffff;
   --surface-secondary: #f8fafc; /* For sidebar and subtle backgrounds */
   --background: #f1f5f9;
-  --text-main: #1e293b;      /* Dark gray – primary text */
-  --text-secondary: #64748b; /* Lighter gray – secondary info */
+  --text-main: #1e293b;
+  --text-secondary: #64748b;
   --text-on-primary: #ffffff;
   --border-color: #e2e8f0;
   --border-color-active: #a5b4fc;
@@ -17,7 +17,7 @@
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --border-radius: 0.5rem;
+  --border-radius: 0.5rem; /* Slightly smaller for a sharper look */
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -126,84 +126,21 @@ select:focus, input:focus { outline: none; border-color: var(--brand-accent); bo
     max-width: 300px;
 }
 
-.price-range {
-    font-family: var(--font-headings);
-    font-size: 2.5rem;
-    color: var(--brand-primary);
-    text-align: center;
-    margin-bottom: 1.5rem;
-    font-weight: 700;
-}
+.price-range { font-family: var(--font-headings); font-size: 2.5rem; color: var(--brand-primary); text-align: center; margin-bottom: 1.5rem; }
 
-.sidebar-title {
-    text-align: center;
-    color: var(--text-secondary);
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-}
+/* === DEFINITIVE STYLE REVAMP FOR RESULTS TEXT === */
+.sidebar-title { text-align: center; color: var(--text-main); font-weight: 700; margin-bottom: 0.25rem; }
+.breakdown-section, .notes-section { margin-top: 2rem; }
+#system-info-box { background-color: #e0f2f1; padding: 1rem; border-radius: var(--border-radius); margin-bottom: 2rem; border-left: 4px solid var(--brand-accent); }
+#system-info-box h4 { font-family: var(--font-headings); margin-bottom: 0.5rem; color: var(--brand-accent-dark); }
+#system-info-box p { font-size: 0.9rem; color: var(--text-main); font-weight: 500; }
+.breakdown-section h4, .notes-section h4 { font-family: var(--font-headings); color: var(--brand-primary); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1rem; }
+.breakdown-item { display: flex; justify-content: space-between; padding: 0.6rem 0; border-bottom: 1px solid #f1f5f9; }
+.breakdown-item:last-child { border-bottom: none; }
+.breakdown-item .label { color: var(--text-main); font-weight: 600; }
+.breakdown-item .value { font-weight: 600; color: var(--text-main); }
+.notes-section p { font-size: 0.9rem; background-color: var(--surface-secondary); padding: 1rem; border-radius: 0.5rem; margin-bottom: 0.5rem; font-weight: 500; }
 
-.breakdown-section, .notes-section {
-    margin-top: 2rem;
-}
-
-#system-info-box {
-    background-color: #e0f2f1;
-    padding: 1rem;
-    border-radius: var(--border-radius);
-    margin-bottom: 2rem;
-    border-left: 4px solid var(--brand-accent);
-}
-#system-info-box h4 {
-    font-family: var(--font-headings);
-    margin-bottom: 0.5rem;
-    color: var(--brand-accent-dark);
-}
-#system-info-box p {
-    font-size: 0.9rem;
-    color: #004d40;
-}
-
-.breakdown-section h4, .notes-section h4 {
-    font-family: var(--font-headings);
-    color: var(--brand-primary);
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 0.5rem;
-    margin-bottom: 1rem;
-}
-
-/* === FIX: Make breakdown text clear and dark === */
-.breakdown-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 0.6rem 0;
-    border-bottom: 1px solid #f1f5f9;
-}
-.breakdown-item:last-child {
-    border-bottom: none;
-}
-
-.breakdown-item .label {
-    color: var(--text-main);     /* Fixed: No more faded gray */
-    font-weight: 500;
-    font-size: 0.95rem;
-}
-
-.breakdown-item .value {
-    color: var(--brand-primary); /* Strong navy for values */
-    font-weight: 600;
-    font-size: 0.95rem;
-}
-
-/* === FIX: Clean up notes section – remove gray background === */
-.notes-section p {
-    font-size: 0.95rem;
-    color: var(--text-main);
-    background-color: transparent !important; /* Remove gray background */
-    padding: 0.75rem;
-    border-radius: 0.5rem;
-    margin-bottom: 0.5rem;
-    border-left: 3px solid var(--brand-accent); /* Visual accent */
-}
 
 .results-actions {
     margin-top: 2rem;
@@ -218,59 +155,4 @@ select:focus, input:focus { outline: none; border-color: var(--brand-accent); bo
   .app-main { padding: 3rem; }
   .app-sidebar { padding: 3rem; border-top: none; border-left: 1px solid var(--border-color); position: sticky; top: 0; height: 100vh; overflow-y: auto; }
   .card-selection-container { grid-template-columns: repeat(3, 1fr); }
-}
-
-/* === PRINT/PDF STYLES – Ensure No Fading === */
-@media print {
-    body {
-        background-color: #ffffff;
-        font-size: 12pt;
-    }
-    
-    .no-print,
-    .stepper,
-    .app-header,
-    .panel-navigation {
-        display: none !important;
-    }
-    
-    .app-sidebar {
-        border: none;
-        padding: 0;
-        background: white;
-    }
-    
-    .sidebar-title,
-    .breakdown-item .label,
-    .breakdown-item .value,
-    #system-info-box p,
-    .notes-section p {
-        color: #000 !important;
-    }
-    
-    .breakdown-item .label {
-        font-weight: 600;
-    }
-    
-    .breakdown-item .value {
-        font-weight: 700;
-    }
-    
-    .breakdown-section h4,
-    .notes-section h4,
-    #system-info-box h4 {
-        color: #000 !important;
-    }
-    
-    .notes-section p,
-    #system-info-box {
-        background-color: transparent !important;
-        border: 1px solid #ddd;
-        border-left: 3px solid #00796b;
-    }
-    
-    .price-range {
-        font-size: 2.2rem;
-        color: #000;
-    }
 }
