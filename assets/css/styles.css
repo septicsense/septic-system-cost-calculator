@@ -30,6 +30,11 @@ body {
   font-size: 16px;
 }
 
+/* === UTILITY CLASSES === */
+.hidden {
+  display: none !important;
+}
+
 /* === APP LAYOUT & STRUCTURE === */
 .app-layout { display: grid; grid-template-columns: 1fr; min-height: 100vh; }
 .app-main { padding: 2rem 1.5rem; }
