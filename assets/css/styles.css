@@ -98,7 +98,36 @@ select:focus, input:focus { outline: none; border-color: var(--brand-accent); bo
 .button.full-width { width: 100%; }
 
 /* === RESULTS SIDEBAR === */
-.placeholder-content { text-align: center; padding: 3rem 1rem; }
+
+/* UI REVAMP: New Placeholder Styles */
+.placeholder-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 3rem 1.5rem;
+    border: 2px dashed var(--border-color);
+    border-radius: var(--border-radius);
+    background-color: var(--surface-main);
+    height: 100%;
+    min-height: 300px;
+}
+.placeholder-content svg {
+    color: var(--brand-accent);
+    margin-bottom: 1.5rem;
+}
+.placeholder-content h3 {
+    font-family: var(--font-headings);
+    color: var(--brand-primary);
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+.placeholder-content p {
+    color: var(--text-secondary);
+    max-width: 300px;
+}
+
 .price-range { font-family: var(--font-headings); font-size: 2.5rem; color: var(--brand-primary); text-align: center; margin-bottom: 1.5rem; }
 .sidebar-title { text-align: center; color: var(--text-secondary); font-weight: 600; margin-bottom: 0.25rem; }
 .breakdown-section, .notes-section { margin-top: 2rem; }
@@ -127,48 +156,21 @@ select:focus, input:focus { outline: none; border-color: var(--brand-accent); bo
   .card-selection-container { grid-template-columns: repeat(3, 1fr); }
 }
 
-
 /* === DEFINITIVE PDF & PRINT STYLES REVAMP === */
 @media print {
-    /* Hide non-essential elements from the PDF */
     .no-print, .stepper, .app-header, .panel-navigation {
         display: none !important;
     }
-
-    /* Ensure a clean, full-width layout for the quote */
-    body {
-        background-color: #ffffff;
-    }
-    .app-sidebar {
-        border: none;
-        padding: 0;
-    }
-
-    /* Force all text to be high-contrast and readable */
+    body { background-color: #ffffff; }
+    .app-sidebar { border: none; padding: 0; }
     .sidebar-title,
     .breakdown-item .label,
     #system-info-box p,
     .notes-section p {
         color: var(--text-main) !important;
     }
-
-    /* Make the cost breakdown section bold and clear */
-    .breakdown-item .label {
-        font-weight: 600;
-    }
-    .breakdown-item .value {
-        color: var(--text-main) !important;
-        font-weight: 700;
-    }
-
-    /* Make headings stand out */
-    .breakdown-section h4, .notes-section h4, #system-info-box h4 {
-        color: #000000 !important;
-    }
-
-    /* Remove backgrounds and add borders for clarity */
-    .notes-section p, #system-info-box {
-        background-color: transparent !important;
-        border: 1px solid var(--border-color);
-    }
+    .breakdown-item .label { font-weight: 600; }
+    .breakdown-item .value { color: var(--text-main) !important; font-weight: 700; }
+    .breakdown-section h4, .notes-section h4, #system-info-box h4 { color: #000000 !important; }
+    .notes-section p, #system-info-box { background-color: transparent !important; border: 1px solid var(--border-color); }
 }
